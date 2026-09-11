@@ -1,0 +1,139 @@
+---
+title: Multi-Tenant Enterprise CRM
+tagline: >-
+  Five production modules on one codebase, serving multiple enterprise clients
+  from a shared deployment — with tenant isolation enforced by the database, not
+  by application code.
+role: Lead architect & engineer
+period: Feb 2025 — Present
+featured: true
+order: 2
+summary: >-
+  Built from an empty repository to five modules in production across multiple
+  enterprise accounts. The interesting work was not the features — it was making
+  cross-tenant data access structurally impossible rather than merely unlikely.
+stack:
+  - TypeScript
+  - Next.js
+  - React
+  - Node.js
+  - Prisma ORM
+  - MySQL
+  - Redis
+  - BullMQ
+  - AWS
+metrics:
+  - value: "5"
+    label: Production modules
+  - value: "~40%"
+    label: Faster response after queueing
+  - value: Multi-account
+    label: Enterprise deployments
+links:
+  live: null
+  github: null
+---
+
+## The problem
+
+Each enterprise client wanted the same five capabilities — lead management, KPI
+tracking, project management, attendance, and payroll — with different fields,
+different approval rules, and different definitions of what a "closed" lead
+means. The obvious options were both bad.
+
+Deploying a separate instance per client means every bug fix becomes an N-way
+deployment and every client drifts onto their own fork within a year. One shared
+instance with a `tenant_id` column everywhere means the entire security model
+rests on every developer, forever, remembering to add one `WHERE` clause.
+
+The second failure mode is the one that actually happens. It only takes a single
+missed filter in a single query, once, and one client sees another client's
+pipeline. For a CRM holding commercial data, that is not a bug — it is the end
+of the contract.
+
+## Architecture
+
+Shared schema, shared deployment, isolation enforced below the application.
+
+The principle I designed around: **a developer writing a new query should not be
+able to leak data even if they forget the tenant filter entirely.** If safety
+depends on discipline, it will eventually fail.
+
+Every request resolves a tenant context at the edge, before any handler runs.
+That context is bound to the request, not to a global, and the data layer refuses
+to issue a query without one.
+
+```ts
+// The data layer takes tenant scope as a required argument. There is no
+// unscoped export — a query that forgets it does not compile.
+export function tenantClient(tenantId: string) {
+  return prisma.$extends({
+    query: {
+      $allModels: {
+        async $allOperations({ args, query, model }) {
+          if (TENANT_SCOPED.has(model)) {
+            args.where = { ...args.where, tenantId };
+          }
+          return query(args);
+        },
+      },
+    },
+  });
+}
+
+// Handlers never touch `prisma` directly.
+export async function listLeads(ctx: RequestContext, filter: LeadFilter) {
+  const db = tenantClient(ctx.tenantId);
+  return db.lead.findMany({ where: toPrismaWhere(filter) });
+}
+```
+
+Two things make this hold. The extension injects the tenant predicate into every
+operation on a scoped model, so forgetting it in a handler is not possible. And
+the unscoped client is not exported from the module at all — reaching around the
+boundary requires deliberately editing the data layer, which is exactly the kind
+of change that gets noticed in review.
+
+**RBAC on top of tenancy.** These are separate concerns and conflating them was
+a mistake I made early. Tenancy answers *which rows exist for you*. Roles answer
+*what you may do with the rows you can see*. Once separated, per-client role
+configuration became data rather than code — a client can define a "Regional
+Manager" without a deployment.
+
+**Queues for anything slow.** Payroll runs, report generation, and bulk imports
+were making requests hang for tens of seconds. Moving them onto BullMQ with Redis
+took them off the request path entirely; the API returns a job id immediately and
+the client polls or receives a socket update. Perceived responsiveness improved
+by roughly 40%.
+
+## Challenges
+
+**Migrations across live tenants.** One schema, several clients, no shared
+maintenance window. Every migration has to be backwards-compatible with the code
+currently running — add columns before writing them, write both before reading
+the new one, drop the old only once nothing reads it. Slower per change, but it
+means no client ever needs to be told about a deploy.
+
+**Configurability without becoming a form builder.** Every client wants custom
+fields, and it is tempting to build a generic schema engine. That path ends in a
+product where nothing has a type and every query is dynamic. I constrained
+customisation to typed field definitions per module with a fixed set of field
+types. Some requests get declined. The system stays queryable.
+
+**Noisy-neighbour load.** A shared deployment means one client's bulk import can
+degrade everyone. Per-tenant queue concurrency limits fixed the worst of it —
+a large job now takes longer for that tenant rather than for all of them.
+
+## Outcome
+
+Five modules running in production across multiple enterprise accounts on a
+single deployment, with tenant isolation enforced at the data layer and
+configurable RBAC per client.
+
+The lesson I carry forward is that isolation belongs as low in the stack as you
+can push it. Every layer above the enforcement point is a layer where a
+reasonable person can make a reasonable mistake. Moving the boundary down does
+not make developers better — it makes their mistakes non-fatal.
+
+I have written up the Postgres-specific version of this argument in
+[Row-Level Security is the tenant isolation you actually want](/engineering/postgres-row-level-security-multi-tenant).

@@ -1,0 +1,16 @@
+{
+  "name": "Core Stack",
+  "order": 1,
+  "note": "The everyday stack. TypeScript end to end, Prisma against SQL, and Next.js for anything that needs to render fast and rank.",
+  "items": [
+    "TypeScript",
+    "JavaScript (ES6+)",
+    "React",
+    "Next.js",
+    "Node.js",
+    "Express.js",
+    "Prisma ORM",
+    "REST APIs",
+    "SQL"
+  ]
+}

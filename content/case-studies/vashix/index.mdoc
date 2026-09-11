@@ -1,0 +1,183 @@
+---
+title: Vashix
+tagline: >-
+  A media verification platform that hardware-signs photo and video at the moment
+  of capture, so an image can prove who took it, where, when, and that nobody has
+  touched it since.
+role: Solo architect & engineer
+period: 2025 — Present
+featured: true
+order: 1
+summary: >-
+  Photos are now trivially generated and trivially edited, which makes "is this
+  real?" a question no viewer can answer by looking. Vashix moves the proof to
+  the moment of capture — signing on-device against the C2PA 2.1 provenance
+  standard and scoring how much that signature can be trusted.
+stack:
+  - TypeScript
+  - Next.js
+  - Node.js
+  - PostgreSQL
+  - Prisma
+  - Android SDK
+  - C2PA 2.1
+  - AWS S3
+  - Redis
+metrics:
+  - value: "0—100"
+    label: Trust Score engine
+  - value: C2PA 2.1
+    label: Provenance standard
+  - value: Multi-tenant
+    label: Teams, roles, API keys
+links:
+  live: https://vashix.com
+  github: null
+---
+
+## The problem
+
+Verifying a photograph used to be a question about the photograph. You looked
+for compression artefacts, inconsistent lighting, cloned pixels. That approach
+is finished. Generated media is now good enough that pixel forensics produces
+confident answers in both directions, and the industries that most need an
+answer — insurance claims, field inspection, journalism, legal evidence — cannot
+run on a method that is sometimes confidently wrong.
+
+The deeper issue is that forensics is trying to reconstruct a fact after the
+fact. By the time an image reaches a claims adjuster it has been through a
+camera roll, a messaging app, and two re-encodes. Whatever context it once
+carried is gone.
+
+So the interesting question is not "can we detect fakes better?" It is: **what
+if the proof were created at the same instant as the image, and carried with
+it?**
+
+## Architecture
+
+Three layers, each of which has to be independently trustworthy.
+
+{% callout %}
+The design constraint that shapes everything: a claim is only as strong as the
+weakest link between the sensor and the signature. Anything an attacker can get
+between is a hole.
+{% /callout %}
+
+**Capture (Android SDK).** The SDK sits as close to the camera as the platform
+allows. At capture it collects the frame, GPS, sensor readings, and a hardware
+attestation from the device's secure element, then signs the bundle before the
+image is written anywhere an app could reach it. The signing key never leaves
+hardware-backed storage.
+
+**Provenance (C2PA 2.1).** Rather than inventing a manifest format, the signed
+bundle is expressed as a C2PA manifest. This was a deliberate choice to be
+boring: an interoperable standard means verification does not depend on Vashix
+being available, or existing, in five years. Anyone with a C2PA validator can
+check the assertion independently.
+
+**Verification and trust scoring (SaaS).** A multi-tenant platform where
+organisations upload or receive media, verify the manifest chain, and get a
+Trust Score. Teams, roles, and scoped API keys, because the buyers are companies
+with existing workflows rather than individuals.
+
+## The Trust Score
+
+A binary verified/unverified flag is the wrong output, and this took me a while
+to accept. Real captures fail in mundane ways — GPS is weak indoors, an older
+device has no usable attestation, a legitimate crop breaks the hash. If those
+all render as "unverified", the product cries wolf and gets ignored.
+
+So the engine emits a 0—100 score composed of independent signals:
+
+- **Device attestation** — is the hardware key genuine, is the OS unmodified,
+  can the platform vouch for the boot state
+- **GPS integrity** — does the location agree with network-derived position, and
+  are the readings internally consistent rather than teleporting
+- **Liveness** — does the sensor data look like a scene, or like a photograph of
+  a screen
+- **Chain integrity** — does the C2PA manifest chain validate, and does every
+  edit since capture declare itself
+
+Each signal contributes independently, so a low score is explainable. That
+matters more than the number: an adjuster needs to know *which* part is weak to
+decide what to do about it.
+
+```ts
+// Signals are weighted and, critically, each returns its own reasoning so the
+// final score can always be explained back to the user.
+interface Signal {
+  key: SignalKey;
+  weight: number;
+  evaluate(capture: CaptureBundle): Promise<SignalResult>;
+}
+
+interface SignalResult {
+  score: number;          // 0—1
+  confidence: number;     // how much to trust this signal here
+  reason: string;         // surfaced verbatim in the UI
+}
+
+async function trustScore(capture: CaptureBundle, signals: Signal[]) {
+  const results = await Promise.all(
+    signals.map(async (signal) => ({
+      signal,
+      result: await signal.evaluate(capture),
+    })),
+  );
+
+  // Confidence-weighted, so a signal that cannot assess this capture
+  // abstains rather than dragging the score down.
+  const totalWeight = results.reduce(
+    (sum, { signal, result }) => sum + signal.weight * result.confidence,
+    0,
+  );
+
+  if (totalWeight === 0) return { score: null, reasons: ["No usable signals"] };
+
+  const weighted = results.reduce(
+    (sum, { signal, result }) =>
+      sum + result.score * signal.weight * result.confidence,
+    0,
+  );
+
+  return {
+    score: Math.round((weighted / totalWeight) * 100),
+    reasons: results.map(({ result }) => result.reason),
+  };
+}
+```
+
+The `confidence` term is the part I would defend hardest. Without it, a device
+with no attestation hardware scores badly on a signal it was never able to
+answer. With it, that signal abstains and the remaining signals carry the score —
+which is what a human evaluator would do.
+
+## Challenges
+
+**Trusting a device you do not control.** Every mitigation here is probabilistic.
+A rooted device can lie about a great deal; hardware attestation narrows what it
+can lie about but does not eliminate it. I settled on stating the residual risk
+explicitly in the score rather than pretending it is zero — a product that
+claims certainty it does not have is worse than one that quantifies its doubt.
+
+**Standard versus speed.** Implementing C2PA 2.1 properly was significantly
+slower than a proprietary signed-JSON format would have been. It is the decision
+I am most confident about. A verification claim that can only be checked by the
+company making the claim is not verification, it is branding.
+
+**Where the SDK sits.** Capture-time signing has to happen before any code
+outside the trusted path can touch the frame. On Android that constrains which
+camera APIs are usable, and some convenient ones are simply off the table. The
+convenience was not worth the hole.
+
+## Outcome
+
+Vashix runs as a live multi-tenant platform with an Android capture SDK, C2PA
+2.1 verification, and the Trust Score engine in production.
+
+The part I did not expect to matter as much as it does is explainability. Early
+on I optimised for score accuracy. What users actually needed was to understand
+*why* a capture scored what it did — because their next action depends on which
+signal was weak, not on the number itself. Reworking the engine so every signal
+returns human-readable reasoning changed the product more than any accuracy
+improvement did.

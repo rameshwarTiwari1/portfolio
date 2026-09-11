@@ -1,0 +1,18 @@
+{
+  "company": "Webriver Solutions",
+  "role": "Web Developer Intern",
+  "location": "Mumbai, India",
+  "period": "Aug 2023 — Dec 2023",
+  "order": 3,
+  "current": false,
+  "highlights": [
+    {
+      "text": "Developed responsive, mobile-first web applications with HTML5, CSS3, JavaScript, and PHP.",
+      "caseStudy": null
+    },
+    {
+      "text": "Wrote automated QA scripts and reworked UI flows based on user feedback rather than assumption.",
+      "caseStudy": null
+    }
+  ]
+}

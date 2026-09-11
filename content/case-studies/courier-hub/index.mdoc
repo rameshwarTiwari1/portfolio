@@ -1,0 +1,127 @@
+---
+title: Courier Hub
+tagline: >-
+  An e-commerce logistics platform that turns several shipping carriers, each
+  with its own API and its own idea of what an order is, into one interface.
+role: Backend & integrations engineer
+period: "2025"
+featured: true
+order: 3
+summary: >-
+  Order processing, invoicing, and multi-account shipping across carriers whose
+  APIs agree on almost nothing. The engineering problem was not shipping labels —
+  it was building one domain model that survives every carrier's version of the
+  truth.
+stack:
+  - TypeScript
+  - Node.js
+  - Next.js
+  - MySQL
+  - Prisma ORM
+  - Redis
+  - BullMQ
+  - AWS S3
+metrics:
+  - value: Multi-carrier
+    label: Unified integration layer
+  - value: Idempotent
+    label: Retry-safe operations
+  - value: Built-in
+    label: Reporting & analytics
+links:
+  live: null
+  github: null
+---
+
+## The problem
+
+A merchant with volume does not use one courier. They use several — one that is
+cheap for metro deliveries, one that actually reaches tier-3 cities, one whose
+COD remittance is fastest — and often several accounts with the same carrier for
+different business units.
+
+Every one of those carriers exposes a different API. They disagree on how to
+identify a shipment, what statuses exist, whether weight is grams or kilograms,
+how to express a serviceable pincode, and what a failed delivery means. Some
+return XML. Some return HTTP 200 with an error in the body.
+
+The naive integration — a branch per carrier scattered through the order
+handling code — works for two carriers and becomes unmaintainable at four,
+because the business logic and the carrier quirks are interleaved and cannot be
+tested apart.
+
+## Architecture
+
+One internal domain model, and an adapter per carrier that translates in both
+directions. The rest of the application never learns that carriers differ.
+
+```ts
+// Every carrier implements this. The application only knows this interface.
+export interface CarrierAdapter {
+  readonly id: CarrierId;
+
+  quote(shipment: Shipment): Promise<Quote[]>;
+  book(shipment: Shipment, account: CarrierAccount): Promise<Booking>;
+  track(awb: string, account: CarrierAccount): Promise<TrackingEvent[]>;
+  cancel(awb: string, account: CarrierAccount): Promise<void>;
+
+  /** Carrier status strings → our fixed status enum. */
+  normaliseStatus(raw: string): ShipmentStatus;
+}
+```
+
+`normaliseStatus` looks trivial and was the highest-value part of the design.
+Carriers between them expose dozens of status strings — `IN TRANSIT`,
+`Intransit`, `SHIPMENT_PICKED`, `RTO_INITIATED` — and the moment any of those
+leak into business logic, every downstream feature has to know every carrier's
+vocabulary. Collapsing them at the boundary into a small fixed enum meant
+reporting, notifications, and the merchant UI were written once.
+
+**Idempotency, because shipping is not a read.** Booking a shipment costs money
+and cannot be undone cheaply. Network timeouts are common with carrier APIs, and
+a timeout does not tell you whether the booking happened. Every mutating
+operation carries a client-generated idempotency key, persisted before the call
+and reconciled after, so a retry after an ambiguous failure either returns the
+original booking or completes it — never books twice.
+
+**Everything carrier-facing runs on a queue.** Carrier APIs are slow and
+unreliable, and neither property should be visible to a merchant clicking
+"ship". Bookings, tracking refreshes, and label generation run as BullMQ jobs
+with per-carrier concurrency limits and exponential backoff. Labels land in S3;
+the record stores a key rather than a blob.
+
+**Reporting reads from a projection.** Analytics over live order tables meant
+slow dashboards and lock contention with order processing. Shipment events feed
+a denormalised reporting table written by the same workers, so reads never
+compete with the write path.
+
+## Challenges
+
+**Carriers change without telling you.** A response field silently became a
+string. A status appeared that no documentation mentioned. The adapter layer
+absorbed these, and unknown statuses now map to an explicit `UNKNOWN` that
+alerts rather than crashing — a shipment in an unrecognised state should page
+someone, not throw a 500 at a merchant.
+
+**Multi-account within one carrier.** Credentials, rate limits, and serviceable
+pincodes are per-account, not per-carrier. Modelling the account as a first-class
+entity rather than a config blob on the carrier made rate limiting and
+per-business-unit reporting fall out naturally. I got this wrong first and
+retrofitted it, which cost about a week.
+
+**Reconciliation.** Carrier invoices do not match what the system thinks was
+shipped — weight discrepancies, surcharges applied later, RTO charges appearing
+weeks after. Invoicing had to model the difference between *expected* and
+*settled* cost instead of assuming the quote was final.
+
+## Outcome
+
+A working logistics platform handling order processing, multi-account shipping
+across carriers, invoicing with reconciliation, and reporting — with adding a new
+carrier reduced to implementing one interface rather than touching the order
+pipeline.
+
+The general lesson is one I now apply reflexively: when integrating systems you
+do not control, spend the time on the boundary. An adapter layer feels like
+ceremony when you have one integration. At four it is the only reason the
+codebase is still comprehensible.

@@ -1,0 +1,30 @@
+{
+  "company": "AdsCult Private Limited",
+  "role": "Software Engineer",
+  "location": "Mumbai, India",
+  "period": "Feb 2025 — Present",
+  "order": 1,
+  "current": true,
+  "highlights": [
+    {
+      "text": "Architected and delivered a multi-tenant enterprise CRM from scratch across five modules — lead management, KPI tracking, project management, attendance, and payroll — deployed to multiple enterprise client accounts.",
+      "caseStudy": "multi-tenant-enterprise-crm"
+    },
+    {
+      "text": "Designed the tenancy model so isolation is enforced at the database layer rather than in application code, making cross-tenant data access structurally impossible instead of merely unlikely.",
+      "caseStudy": "multi-tenant-enterprise-crm"
+    },
+    {
+      "text": "Built Courier Hub, an e-commerce logistics platform handling order processing, invoicing, and multi-account shipping integration with built-in reporting.",
+      "caseStudy": "courier-hub"
+    },
+    {
+      "text": "Moved slow synchronous work onto BullMQ and Redis, improving perceived system responsiveness by roughly 40%, and automated recurring SEO content workflows with n8n.",
+      "caseStudy": null
+    },
+    {
+      "text": "Provisioned and operated the AWS footprint — EC2, RDS, S3, SQS, Amplify — behind Nginx, and implemented RAG retrieval over Pinecone and pgvector for semantic search.",
+      "caseStudy": null
+    }
+  ]
+}

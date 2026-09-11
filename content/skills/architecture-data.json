@@ -1,0 +1,17 @@
+{
+  "name": "Architecture & Data",
+  "order": 4,
+  "note": "The decisions that are expensive to reverse: tenancy boundaries, access control, where the queue sits, and which database is actually the right one.",
+  "items": [
+    "Multi-tenant SaaS",
+    "RBAC / ABAC",
+    "System design",
+    "PostgreSQL",
+    "MySQL",
+    "MongoDB",
+    "Redis",
+    "BullMQ",
+    "Socket.io",
+    "n8n"
+  ]
+}

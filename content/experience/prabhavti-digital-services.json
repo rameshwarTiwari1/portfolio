@@ -1,0 +1,22 @@
+{
+  "company": "Prabhavti Digital Services",
+  "role": "Full Stack Developer Intern",
+  "location": "Mumbai, India",
+  "period": "Jan 2024 — Jun 2024",
+  "order": 2,
+  "current": false,
+  "highlights": [
+    {
+      "text": "Built MERN stack applications and added automated tests around the authentication flows, which cut production bugs by about 30%.",
+      "caseStudy": null
+    },
+    {
+      "text": "Integrated payment gateway REST APIs and validated the full transaction lifecycle with Postman before release.",
+      "caseStudy": null
+    },
+    {
+      "text": "Improved React performance through lazy loading, code splitting, and Redux Toolkit state management in an Agile team.",
+      "caseStudy": null
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "name": "AI & GenAI",
+  "order": 2,
+  "note": "Retrieval built into real products — including deciding when a plain SQL query beats a vector search, which is more often than the hype suggests.",
+  "items": [
+    "RAG architecture",
+    "Pinecone",
+    "pgvector",
+    "Semantic search",
+    "LLM API integration",
+    "Prompt engineering",
+    "Claude Code"
+  ]
+}

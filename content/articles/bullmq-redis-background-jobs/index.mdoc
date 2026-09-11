@@ -1,0 +1,172 @@
+---
+title: What actually belongs on a queue
+excerpt: >-
+  Moving work to BullMQ made our API roughly 40% more responsive. It also
+  introduced failure modes that did not exist before. Here is the rule I use now
+  to decide what goes on a queue, and what it costs when it does.
+publishedAt: 2026-07-22
+tags:
+  - Node.js
+  - Redis
+  - BullMQ
+  - Architecture
+draft: false
+---
+
+The pitch for background jobs is simple: slow work should not block a response.
+Move it to a queue, return immediately, everyone is happier.
+
+That is true, and it undersells the cost. A queue turns one synchronous
+operation with one outcome into a distributed system with at-least-once
+delivery, partial failure, and ordering you no longer control. Worth it — often —
+but not free, and the decision deserves more than "this endpoint feels slow".
+
+## The rule
+
+Work belongs on a queue when **the caller does not need the result to proceed,
+and the work can be safely repeated.**
+
+Both halves matter.
+
+If the caller needs the result, a queue does not remove the wait — it relocates
+it into polling or a socket subscription, and now you have the latency *and* the
+infrastructure. If the work cannot be safely repeated, a queue is actively
+dangerous, because at-least-once delivery means it will eventually run twice.
+
+Applied to what we had:
+
+| Work | Queue? | Why |
+|---|---|---|
+| Payroll run for 400 employees | Yes | Nobody watches it complete; idempotent per period |
+| Report generation | Yes | Result is fetched later; regenerating is harmless |
+| Bulk CSV import | Yes | Long, chunkable, resumable |
+| Sending one transactional email | Yes | Fire-and-forget, retry-safe with a dedupe key |
+| Charging a card | **No** | Caller needs the outcome; repeating is not harmless |
+| Validating a form | No | Caller needs it immediately |
+
+The card row is the one people get wrong. It is slow and it calls an external
+API, so it pattern-matches to "queue this". But the user is standing there
+waiting to know whether their payment worked, and a retried charge is a real
+financial event. Slow and synchronous is the correct answer.
+
+## Idempotency is the price of admission
+
+Every queue is at-least-once. Not "usually once" — a worker can complete the work
+and then die before acknowledging, and the job will be redelivered. Plan for it.
+
+```ts
+// jobId makes enqueueing idempotent: BullMQ will not add a second job with
+// the same id while one is active or waiting.
+await payrollQueue.add(
+  "run-payroll",
+  { tenantId, periodId },
+  {
+    jobId: `payroll:${tenantId}:${periodId}`,
+    attempts: 5,
+    backoff: { type: "exponential", delay: 2_000 },
+    removeOnComplete: { age: 86_400, count: 1_000 },
+    removeOnFail: { age: 604_800 },
+  },
+);
+```
+
+`jobId` handles duplicate *enqueues*. It does not handle duplicate *execution* —
+a job that fails on attempt three after doing half its work will re-run from the
+start. So the handler has to be idempotent too:
+
+```ts
+worker.process("run-payroll", async (job) => {
+  const { tenantId, periodId } = job.data;
+
+  // Claim the period. If another attempt already finished it, stop.
+  const claimed = await db.payrollRun.updateMany({
+    where: { tenantId, periodId, status: "PENDING" },
+    data: { status: "RUNNING", startedAt: new Date() },
+  });
+
+  if (claimed.count === 0) {
+    const existing = await db.payrollRun.findUnique({
+      where: { tenantId_periodId: { tenantId, periodId } },
+    });
+    if (existing?.status === "COMPLETE") return existing;
+    // RUNNING but not ours — another worker has it.
+    throw new Error("payroll run already in progress");
+  }
+
+  // ... do the work, writing per-employee rows with a unique constraint
+  // on (periodId, employeeId) so partial re-runs cannot double-pay.
+});
+```
+
+The unique constraint is doing the real work there. Application-level "have I
+done this already?" checks race. A database constraint does not.
+
+## Set removeOnComplete, on day one
+
+Redis holds completed jobs until told otherwise. A queue processing a few
+thousand jobs a day will quietly consume all available memory over a few weeks,
+and Redis running out of memory takes down everything else using it.
+
+Set `removeOnComplete` and `removeOnFail` when you create the queue, not after
+the incident.
+
+## Concurrency is per-worker, and that surprises people
+
+```ts
+new Worker("payroll", handler, { concurrency: 5 });
+```
+
+That is five concurrent jobs *per worker process*. Run four instances and you
+have twenty, which is a good way to discover your database connection pool
+limit at three in the morning. Reason about total concurrency across the fleet,
+not per process.
+
+For shared infrastructure — a rate-limited external API, or one tenant's bulk
+import that should not starve everyone else — use a rate limiter or a group key
+rather than tuning concurrency:
+
+```ts
+new Worker("carrier-sync", handler, {
+  concurrency: 10,
+  limiter: { max: 20, duration: 1_000 }, // 20/sec across this worker
+});
+```
+
+## Failures need somewhere to go
+
+A job that exhausts its attempts should not vanish into a log line. Move it
+somewhere a human will look:
+
+```ts
+worker.on("failed", async (job, error) => {
+  if (job && job.attemptsMade >= (job.opts.attempts ?? 1)) {
+    await alertOnCall({
+      queue: job.queueName,
+      jobId: job.id,
+      data: job.data,
+      error: error.message,
+    });
+  }
+});
+```
+
+Without this, the failure mode is silent. Payroll did not run, nobody was told,
+and you find out from the client. Ask me how I know.
+
+## What we actually got
+
+Moving payroll runs, report generation, and bulk imports off the request path
+improved perceived API responsiveness by about 40%. That number is honest but
+narrow — it is p95 latency on the endpoints that previously did the work inline,
+not a system-wide improvement. The work still takes as long; it just happens
+where nobody is waiting.
+
+What we also got: two new failure modes (jobs stuck in `RUNNING` after a worker
+died, and one duplicate-execution bug that the unique constraint caught before
+it mattered), a Redis instance that is now production-critical, and a dashboard
+somebody has to look at.
+
+That trade was clearly worth it for this workload. It would not have been worth
+it to make a 200ms endpoint into a 50ms endpoint. The threshold, roughly, is
+whether the work is slow enough that a human notices — and whether you are
+prepared to own a distributed system to fix it.

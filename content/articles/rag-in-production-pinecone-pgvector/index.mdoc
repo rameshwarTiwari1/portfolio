@@ -1,0 +1,153 @@
+---
+title: When you do not need a vector database
+excerpt: >-
+  I have shipped RAG with both Pinecone and pgvector. The most useful thing I
+  learned was how often semantic search was the wrong tool, and how to tell
+  before you have built it.
+publishedAt: 2026-06-30
+tags:
+  - AI
+  - RAG
+  - PostgreSQL
+  - pgvector
+  - Pinecone
+draft: false
+---
+
+Retrieval-augmented generation has a default architecture now: chunk the
+documents, embed the chunks, put them in a vector database, retrieve the top-k
+by cosine similarity, stuff them into a prompt.
+
+It works. It is also frequently a worse answer than a `WHERE` clause, and the
+failure is hard to see from the inside — because a vector search always returns
+something. There is no empty result set to tell you the approach was wrong. You
+get five plausible-looking chunks and an LLM confidently summarising them.
+
+## The question to ask first
+
+**Does the user's query express a fuzzy concept, or a precise filter?**
+
+"What did we agree about payment terms?" is fuzzy. The words in the contract may
+be "net thirty", "remittance", or "settlement period", none of which appear in
+the question. Lexical search fails. Embeddings are the right tool.
+
+"Show me invoices over ₹50,000 from last quarter that are unpaid" is not fuzzy at
+all. It is three predicates and a sort. Embedding it produces chunks that are
+*about* large unpaid invoices, which is not the same as the correct set, and the
+LLM will happily present the approximation as the answer.
+
+The tell is whether a competent person with SQL access could answer the question
+exactly. If they could, retrieval that is merely similar is a downgrade dressed
+as intelligence.
+
+{% callout %}
+Most real product questions are a mix. "Which unpaid invoices mention a
+disputed delivery?" is a SQL filter *and* a semantic search. Answering it well
+means doing both — filter first, then search inside the result.
+{% /callout %}
+
+## Filter first, then search
+
+That last case is where naive RAG loses badly, because filtering after retrieval
+means you searched the wrong corpus. If you retrieve the top 20 semantically
+similar chunks and *then* filter to unpaid invoices, you may be left with two —
+not because only two match, but because the other matches ranked 21st onward.
+
+Pre-filtering is why I mostly reach for pgvector now.
+
+```sql
+-- The filter runs first. The vector search happens inside the rows that
+-- already satisfy the business predicate.
+SELECT
+  c.id,
+  c.content,
+  c.embedding <=> $1 AS distance
+FROM invoice_chunk c
+JOIN invoice i ON i.id = c.invoice_id
+WHERE i.tenant_id = $2
+  AND i.status    = 'UNPAID'
+  AND i.issued_at >= $3
+ORDER BY c.embedding <=> $1
+LIMIT 10;
+```
+
+That query is doing something a dedicated vector store makes genuinely awkward:
+joining embeddings to relational state that changes independently of them. An
+invoice's status changes; its embedding does not. Keeping them in the same
+database means the filter is always current and always consistent, with no
+synchronisation job to drift.
+
+## Pinecone versus pgvector, honestly
+
+I have run both in production. The decision is less about the vectors than about
+where the rest of your truth lives.
+
+**pgvector** when your embeddings are attached to relational data you already
+store in Postgres, when queries need to filter on that data, and when scale is
+in the low millions of vectors. One database, transactional consistency between
+a row and its embedding, no sync pipeline, and no second thing to pay for and
+monitor. This covers a large majority of application RAG.
+
+**Pinecone** when the vector workload is genuinely the primary workload — tens of
+millions of vectors and up, high query concurrency, and you would rather not own
+index tuning, replication, and the memory characteristics of HNSW. Managed
+infrastructure is a real product and there is a scale at which building it
+yourself is a bad use of your time.
+
+The failure mode I would push back on hardest is reaching for a managed vector
+database at 50,000 chunks. At that size pgvector on the Postgres instance you
+already run is faster to build, cheaper, easier to reason about, and removes an
+entire class of consistency bug.
+
+```sql
+-- HNSW: better recall/latency than IVFFlat, and no training step.
+CREATE INDEX ON invoice_chunk
+  USING hnsw (embedding vector_cosine_ops)
+  WITH (m = 16, ef_construction = 64);
+
+-- Raise at query time when recall matters more than latency.
+SET hnsw.ef_search = 100;
+```
+
+## Chunking is where the quality is
+
+More time goes here than into choosing a vector store, and it has more effect on
+output quality than the embedding model does.
+
+**Split on structure, not character count.** A 512-token window that cuts a table
+in half produces a chunk that is retrievable and useless. Split on headings,
+clauses, list boundaries — whatever the document's own structure is. Fall back to
+token windows only where there is no structure to use.
+
+**Carry context into the chunk.** A chunk reading "This does not apply to
+enterprise accounts" is meaningless in isolation. Prefixing each chunk with its
+document title and heading path — `Contract 4412 › Payment Terms › Exceptions` —
+costs a few tokens and measurably improves both retrieval and the model's
+ability to use what it retrieved.
+
+**Overlap, modestly.** Ten to fifteen percent catches sentences that straddle a
+boundary. More than that inflates your index and returns near-duplicate chunks
+that crowd out genuinely different results.
+
+## Evaluate retrieval separately from generation
+
+When a RAG answer is wrong, there are two possible causes: the right chunk was
+never retrieved, or it was retrieved and the model ignored it. These have
+completely different fixes, and you cannot tell them apart by reading the answer.
+
+Keep a small set — thirty is enough to start — of real questions with the chunk
+ids that should be retrieved. Measure recall@k on retrieval alone. When quality
+regresses, you immediately know which half moved. Almost every RAG quality
+problem I have chased was a retrieval problem being debugged as a prompting
+problem.
+
+## The uncomfortable summary
+
+Semantic search is a genuinely good answer to a narrower question than the
+current enthusiasm suggests. Before building it, try to answer the user's actual
+questions with SQL and see how far you get. Where SQL is sufficient it will be
+faster, cheaper, exactly correct, and explainable.
+
+Where it is not sufficient — where the user's words and the document's words do
+not overlap — embeddings do something nothing else does. That is worth building
+carefully. It is just not worth building by default.

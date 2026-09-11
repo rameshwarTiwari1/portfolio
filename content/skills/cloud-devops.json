@@ -1,0 +1,16 @@
+{
+  "name": "Cloud & DevOps",
+  "order": 3,
+  "note": "Infrastructure I provision and operate myself, not just deploy onto. Nginx in front, CI/CD behind, and enough observability that failures page someone.",
+  "items": [
+    "AWS EC2",
+    "AWS RDS",
+    "AWS S3",
+    "AWS SQS",
+    "AWS Amplify",
+    "Docker",
+    "Nginx",
+    "CI/CD",
+    "Git / GitHub / GitLab"
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "name": "Rameshwar Tiwari",
+  "role": "Full-Stack Software Engineer · AI / GenAI",
+  "location": "Mumbai, India",
+  "availability": "Open to senior engineering roles",
+  "heroHeadline": "I build multi-tenant systems that hold up in production.",
+  "heroSubline": "Full-stack engineer working on scalable SaaS architecture, AWS infrastructure, and AI-integrated products — currently building an AI-driven media verification platform end to end.",
+  "portrait": "/images/portrait.webp",
+  "email": "rameshwar.kes@gmail.com",
+  "phone": "+91 90267 67618",
+  "resumeUrl": "/rameshwar-tiwari-resume.pdf",
+  "socials": [
+    {
+      "label": "GitHub",
+      "url": "https://github.com/rameshwar-tiwari"
+    },
+    {
+      "label": "LinkedIn",
+      "url": "https://www.linkedin.com/in/rameshwar-tiwari"
+    }
+  ],
+  "seo": {
+    "title": "Rameshwar Tiwari — Full-Stack Engineer, Multi-Tenant SaaS & AI",
+    "description": "Full-stack software engineer in Mumbai. Multi-tenant SaaS architecture, AWS infrastructure, background processing, and RAG-based AI systems. Case studies and engineering writing."
+  }
+}

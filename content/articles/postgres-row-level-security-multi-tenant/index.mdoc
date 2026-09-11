@@ -1,0 +1,171 @@
+---
+title: Row-Level Security is the tenant isolation you actually want
+excerpt: >-
+  Filtering by tenant_id in application code means your security model is
+  "everyone remembers, every time, forever". Postgres RLS moves the boundary
+  under the application, where a forgotten WHERE clause stops being fatal.
+publishedAt: 2026-08-18
+tags:
+  - PostgreSQL
+  - Multi-tenancy
+  - Security
+  - Architecture
+draft: false
+---
+
+Most multi-tenant applications isolate tenants the same way: a `tenant_id`
+column on every table, and a `WHERE tenant_id = $1` in every query. It works.
+It is also a security model that depends on every developer, in every query,
+forever, remembering one clause.
+
+That is not a security model. It is a hope.
+
+## The failure is not hypothetical
+
+The queries people get right are the obvious ones. `listInvoices` has the filter,
+because whoever wrote it was thinking about tenancy that morning.
+
+The ones that leak are the queries nobody thought of as data access:
+
+- An admin endpoint added for a support ticket that "just" counts rows
+- A background job that sweeps expired records
+- A report that joins four tables, where the filter is on three of them
+- A `findFirst` by a UUID, on the reasoning that a UUID is unguessable anyway
+
+The last one is worth sitting with. `SELECT * FROM invoice WHERE id = $1` is
+almost certainly in your codebase, and it is almost certainly unfiltered. The
+argument is that an attacker cannot guess the id — which is true right up until
+an id appears in a webhook payload, an exported CSV, or a URL shared in a support
+thread.
+
+Every one of these is a small, reasonable mistake. The architecture decides
+whether a small, reasonable mistake leaks a customer's data.
+
+## What RLS actually does
+
+Row-Level Security pushes the predicate into Postgres. You attach a policy to a
+table, and the database appends it to every query against that table — including
+the ones you forgot.
+
+```sql
+ALTER TABLE invoice ENABLE ROW LEVEL SECURITY;
+ALTER TABLE invoice FORCE ROW LEVEL SECURITY;
+
+CREATE POLICY tenant_isolation ON invoice
+  USING (tenant_id = current_setting('app.tenant_id', true)::uuid);
+```
+
+Now this query:
+
+```sql
+SELECT * FROM invoice WHERE id = '...';
+```
+
+is executed as:
+
+```sql
+SELECT * FROM invoice
+WHERE id = '...'
+  AND tenant_id = current_setting('app.tenant_id', true)::uuid;
+```
+
+The developer who forgot the filter still gets a correct, isolated result. That
+is the entire point.
+
+{% callout %}
+`FORCE ROW LEVEL SECURITY` matters more than it looks. Without it, the table
+owner bypasses policies — and your migration user is very often the table owner.
+{% /callout %}
+
+## Setting the tenant per request
+
+The policy reads a session variable, so something has to set it. With a
+connection pool, this has to happen per transaction, not per connection — pooled
+connections are reused across tenants, and a leftover setting is the exact bug
+RLS was meant to prevent.
+
+```ts
+export async function withTenant<T>(
+  tenantId: string,
+  fn: (tx: Transaction) => Promise<T>,
+): Promise<T> {
+  return db.transaction(async (tx) => {
+    // set_config with `true` scopes to the transaction, so it is discarded
+    // on commit or rollback and cannot leak to the next borrower.
+    await tx.execute(
+      sql`SELECT set_config('app.tenant_id', ${tenantId}, true)`,
+    );
+    return fn(tx);
+  });
+}
+```
+
+The third argument to `set_config` is `is_local`. Passing `true` scopes the
+setting to the current transaction. Passing `false`, or using `SET` instead of
+`SET LOCAL`, leaves it on the connection — where the next request to borrow that
+connection inherits it. That is a cross-tenant leak caused by the mechanism
+meant to prevent cross-tenant leaks, and it is the single most common way an RLS
+implementation goes wrong.
+
+## Use a role that cannot bypass it
+
+RLS does not apply to superusers, and does not apply to the table owner unless
+you forced it. So the application must connect as neither.
+
+```sql
+CREATE ROLE app_user LOGIN PASSWORD '...';
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO app_user;
+GRANT USAGE ON SCHEMA public TO app_user;
+
+-- Migrations run as the owner. The application never does.
+```
+
+If your application connects with the same credentials that run migrations, RLS
+is decorative.
+
+## What it costs
+
+I would rather state the trade-offs than pretend there are none.
+
+**Query plans change.** The policy predicate is a filter Postgres has to plan
+around. In practice, if `tenant_id` leads your indexes it plans well, because
+that is the same predicate you were writing manually. If it does not, you will
+find out via a sequential scan.
+
+**Debugging gets less obvious.** A query returning zero rows in psql when it
+returns data in the application is confusing until you internalise that your
+psql session has no `app.tenant_id` set. Everyone on the team hits this once.
+
+**Not everything should be tenant-scoped.** Shared reference tables, the tenants
+table itself, and genuinely cross-tenant admin tooling need explicit exemption.
+Be deliberate about that list and keep it short — every exemption is a place
+where the guarantee stops.
+
+**It is not a substitute for authorisation.** RLS answers *which rows exist for
+this tenant*. It says nothing about whether this particular user may read them.
+Those are different questions and conflating them produces a system where every
+employee can see payroll.
+
+## Belt and braces
+
+RLS does not mean you stop filtering in application code. Keep the explicit
+filters — they make queries readable and they let the planner do its job. The
+difference is what happens when one is missing. Without RLS, a missing filter is
+a data breach. With it, a missing filter is a query that still returns the right
+rows.
+
+That is the whole argument. You are not making developers more careful. You are
+making their inevitable lapses non-fatal.
+
+## Where I use it, and where I do not
+
+On Postgres, I now reach for RLS by default on any multi-tenant table. On MySQL,
+which has no equivalent, the fallback is enforcing the predicate in a data-access
+layer that does not export an unscoped client — weaker, because it is bypassable
+by anyone who imports the underlying driver, but it moves the boundary to one
+reviewable file instead of every query in the codebase. I wrote about how that
+shook out in practice in the
+[multi-tenant CRM case study](/work/multi-tenant-enterprise-crm).
+
+Neither approach makes isolation someone's job to remember. That is the property
+worth optimising for.

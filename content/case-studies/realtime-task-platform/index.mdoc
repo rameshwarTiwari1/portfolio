@@ -1,0 +1,120 @@
+---
+title: Real-Time Task Platform
+tagline: >-
+  A collaborative task system where people editing the same board see each
+  other's changes immediately — and still converge when the network does not
+  cooperate.
+role: Full-stack engineer
+period: "2024"
+featured: true
+order: 4
+summary: >-
+  Socket.io-backed collaboration with role-based access, built around the
+  question that makes real-time hard: not how to push an update, but what to do
+  when two updates disagree.
+stack:
+  - React
+  - Node.js
+  - Socket.io
+  - MongoDB
+  - Express.js
+  - JWT
+metrics:
+  - value: Real-time
+    label: Multi-user sync
+  - value: RBAC
+    label: Scoped permissions
+links:
+  live: null
+  github: null
+---
+
+## The problem
+
+A task board is a shared mutable document. The moment two people use it at once,
+you inherit every distributed systems problem in miniature: two managers reassign
+the same task within the same second, someone drags a card while offline, a
+socket drops mid-update and reconnects with stale state.
+
+Getting a WebSocket to deliver a message is straightforward. Deciding what the
+board should look like when messages arrive out of order, twice, or not at all is
+the actual work — and it is where naive implementations quietly corrupt state.
+
+## Architecture
+
+**Rooms scoped to boards.** Each board is a Socket.io room. Clients join on open
+and leave on close, so an update fans out to exactly the people looking at that
+board rather than to everyone connected. Room membership is authorised on join,
+not on emit — checking permission once at the boundary rather than on every
+message.
+
+**The server is the only writer.** Clients send intents (`task.move`,
+`task.assign`), never state. The server validates the intent against current
+state and the actor's role, applies it, and broadcasts the result. Clients render
+what the server confirms.
+
+```js
+socket.on("task.move", async (intent, ack) => {
+  const { boardId, taskId, toColumn, expectedVersion } = intent;
+
+  if (!can(socket.user, "task:move", boardId)) {
+    return ack({ ok: false, error: "forbidden" });
+  }
+
+  const task = await Task.findOne({ _id: taskId, boardId });
+  if (!task) return ack({ ok: false, error: "not_found" });
+
+  // Optimistic concurrency: a stale client loses and is told why, rather
+  // than silently overwriting someone else's move.
+  if (task.version !== expectedVersion) {
+    return ack({ ok: false, error: "conflict", current: task });
+  }
+
+  task.column = toColumn;
+  task.version += 1;
+  await task.save();
+
+  // Everyone else in the room, including the sender's other tabs.
+  socket.to(boardId).emit("task.moved", task);
+  ack({ ok: true, task });
+});
+```
+
+The `expectedVersion` check is what makes this safe. Without it, last-write-wins
+means the slower network connection silently overwrites a decision someone else
+already made. With it, the losing client is told there was a conflict and shown
+the current state — which is recoverable, and honest.
+
+**Optimistic UI with reconciliation.** The client applies a move immediately so
+dragging feels instant, and holds the previous state until the server
+acknowledges. On conflict it rolls back and re-renders from the server's
+version. Fast in the common case, correct in the uncommon one.
+
+**Reconnection replays rather than reloads.** A dropped socket resumes with the
+last event id it saw; the server sends everything since. Falls back to a full
+board fetch if the gap is too large to replay.
+
+## Challenges
+
+**Duplicate delivery.** Reconnects meant clients occasionally processed the same
+event twice. Making every event carry an id and having clients ignore ids they
+have already applied was a smaller fix than the debugging that led to it.
+
+**Permissions drifting from rooms.** Early on, a user removed from a board mid-
+session kept receiving updates because they were still in the room. Revoking
+access now force-leaves the room, rather than relying on the next join check.
+
+**The admin dashboard.** Live progress across all teams, naively implemented,
+meant subscribing to every board — which does not scale past a handful of users.
+Replaced with an aggregated summary channel emitting periodic rollups instead of
+raw per-task events.
+
+## Outcome
+
+A working collaborative platform with real-time sync, role-based access control,
+and an admin view of live progress across teams.
+
+What I took from it: real-time features are usually presented as a transport
+problem and are almost always a consistency problem. The socket is the easy part.
+Deciding what happens when two truths arrive at once is the design, and it is
+worth doing before writing the first `emit`.

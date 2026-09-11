@@ -1,0 +1,71 @@
+---
+heading: Rameshwar Tiwari
+lede: >-
+  I am a full-stack engineer in Mumbai. I spend most of my time on the parts of
+  a product that are hard to change later — data models, tenancy boundaries, and
+  the infrastructure underneath.
+---
+
+## How I work
+
+I care about the decisions that are expensive to reverse. Schema design, tenant
+isolation, where the queue boundary sits, what happens when a job fails halfway
+through. Those choices decide whether a system is still pleasant to work on two
+years later, and they are much cheaper to get right at the start than to
+retrofit.
+
+That bias shows up in what I have built. At AdsCult I designed a multi-tenant
+enterprise CRM from an empty repository through five production modules, and the
+thing I am most pleased with is not a feature — it is that tenant isolation is
+enforced at the database layer, so a mistake in application code cannot leak one
+client's data into another's.
+
+## What I am doing now
+
+Two things, in parallel.
+
+The first is **Vashix**, a media verification platform I am designing and
+building end to end. It hardware-signs photos and video at the moment of
+capture, sealing who took it, where, when, and that it has not been edited
+since — verified against the C2PA 2.1 provenance standard. It is the most
+technically demanding thing I have worked on: device attestation, an Android
+SDK, and a trust-scoring engine that has to be defensible rather than merely
+plausible.
+
+The second is going deeper on AWS. I already run production infrastructure —
+EC2, RDS, S3, SQS, Nginx as a reverse proxy — but running it and being able to
+reason rigorously about it are different things. I am working through the
+Solutions Architect Associate material and writing up the parts that connect to
+systems I have actually operated, which is where most of the [engineering
+writing](/engineering) on this site comes from.
+
+## AI, specifically
+
+I have shipped RAG in production rather than in a notebook: Pinecone and
+pgvector for semantic retrieval, LLM APIs wired into real workflows, and the
+unglamorous work around them — chunking that respects document structure,
+evaluating retrieval quality, and deciding when a vector search is genuinely
+better than a well-written SQL query. Often it is not, and saying so has saved
+more time than any model choice.
+
+I also use AI heavily in how I build. Claude Code is part of my daily workflow,
+and I hold a certification from Anthropic's education programme in it.
+
+## Before this
+
+I started with a BSc in Information Technology from KES Shroff College,
+finishing with a 9.0 CGPA and a Best Project Award. Two internships before my
+current role — MERN stack work and payment gateway integrations at Prabhavti
+Digital Services, and mobile-first frontend work at Webriver Solutions — taught
+me the parts of the job that are not architecture: shipping to a deadline,
+reading someone else's code without complaining about it, and writing tests for
+the flows that actually break.
+
+## Outside the editor
+
+I read a lot of post-mortems. There is more to learn from a well-written
+incident report than from most conference talks — they are the only place the
+industry writes honestly about what went wrong.
+
+If you are working on something where the architecture matters,
+[I would like to hear about it](/contact).
