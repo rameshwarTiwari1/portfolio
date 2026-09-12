@@ -2,8 +2,13 @@ import { expect, test } from "@playwright/test";
 
 const SECTIONS = ["work", "experience", "stack", "writing", "about", "contact"];
 
-test.describe("one-page navigation", () => {
-  test("every nav target exists as a section on the home page", async ({ page }) => {
+test.describe("home page structure", () => {
+  /**
+   * The nav points at real pages, but the home page still tells the whole
+   * story in one scroll and keeps stable section ids so `/#work` and friends
+   * remain valid deep links from anywhere.
+   */
+  test("every section keeps a stable id for deep linking", async ({ page }) => {
     await page.goto("/");
 
     for (const id of SECTIONS) {
@@ -11,46 +16,22 @@ test.describe("one-page navigation", () => {
     }
   });
 
-  test("nav links jump to their section and mark themselves current", async ({
-    page,
-    viewport,
-  }) => {
-    test.skip(!viewport || viewport.width < 960, "mobile uses the menu panel");
+  test("a section deep link lands below the sticky header", async ({ page }) => {
+    await page.goto("/#work");
 
-    await page.goto("/");
-    const nav = page.getByRole("navigation", { name: "Primary" });
-
-    for (const [label, id] of [
-      ["Work", "work"],
-      ["Writing", "writing"],
-      ["About", "about"],
-      ["Contact", "contact"],
-    ] as const) {
-      await nav.getByRole("link", { name: label }).click();
-      await expect(page).toHaveURL(new RegExp(`#${id}$`));
-
-      // Smooth scrolling is animated, so poll until the section settles
-      // rather than racing it with a fixed wait. The window it has to land
-      // in is "below the sticky header, above the fold".
-      await expect
-        .poll(
-          async () =>
-            page.locator(`#${id}`).evaluate((el) => {
-              const top = el.getBoundingClientRect().top;
-              return top > -24 && top < 220;
-            }),
-          { message: `${label} never settled below the header`, timeout: 8_000 },
-        )
-        .toBe(true);
-
-      await expect(nav.getByRole("link", { name: label })).toHaveAttribute(
-        "aria-current",
-        "location",
-      );
-    }
+    await expect
+      .poll(
+        () =>
+          page.locator("#work").evaluate((el) => {
+            const top = el.getBoundingClientRect().top;
+            return top > -24 && top < 220;
+          }),
+        { message: "#work never settled below the header", timeout: 8_000 },
+      )
+      .toBe(true);
   });
 
-  test("deep pages still have their own URLs", async ({ request }) => {
+  test("deep pages have their own URLs", async ({ request }) => {
     for (const path of [
       "/work",
       "/work/vashix",
@@ -91,5 +72,60 @@ test.describe("content actually loads", () => {
 
     await expect(page.locator("body")).not.toContainText(/nothing you send here is stored/i);
     await expect(page.locator("body")).not.toContainText(/goes straight to my inbox/i);
+  });
+
+  /**
+   * Several sections rendered completely unstyled once, because the redesign
+   * renamed their classes on the home page and deleted the old CSS while
+   * /about and /work/[slug] still referenced it.
+   */
+  test("the about page's roles and stack are styled, not bare markup", async ({ page }) => {
+    await page.goto("/about");
+
+    await expect(page.locator(".xp-item").first()).toBeVisible();
+    await expect(page.locator(".stack-tab").first()).toBeVisible();
+
+    // A styled timeline row lays out as a grid; bare markup would be block.
+    const display = await page
+      .locator(".xp-item")
+      .first()
+      .evaluate((el) => getComputedStyle(el).display);
+    expect(display).toBe("grid");
+  });
+
+  test("the contact page lays out in two columns on desktop", async ({ page, viewport }) => {
+    test.skip(!viewport || viewport.width < 900, "single column by design");
+
+    await page.goto("/contact");
+
+    const columns = await page
+      .locator(".contact-grid")
+      .evaluate((el) => getComputedStyle(el).gridTemplateColumns.split(" ").length);
+    expect(columns).toBe(2);
+  });
+
+  test("a case study renders its metrics", async ({ page }) => {
+    await page.goto("/work/vashix");
+
+    const proof = page.locator(".proof").first();
+    await expect(proof).toBeVisible();
+    await expect(proof.locator(".proof-value").first()).toBeVisible();
+  });
+});
+
+test.describe("credentials", () => {
+  test("the about page shows education and certifications", async ({ page }) => {
+    await page.goto("/about");
+
+    const section = page.locator("section", {
+      has: page.getByRole("heading", { name: /education and certifications/i }),
+    });
+
+    await expect(section).toBeVisible();
+    await expect(section).toContainText("BSc in Information Technology");
+    await expect(section).toContainText("KES Shroff College");
+    await expect(section).toContainText("CGPA 9.0/10");
+    await expect(section).toContainText("Claude Code in Action");
+    await expect(section).toContainText("HackerRank");
   });
 });

@@ -16,12 +16,14 @@ export default async function WorkPage() {
   return (
     <>
       <div className="page-header">
-        <div className="shell">
+        <div className="shell page-head-split">
           <h1 className="page-title">Case studies</h1>
-          <p className="page-lede">
-            Four systems, covered properly — the problem each one solved, how it
-            was architected, the trade-offs I made, and what shipped.
-          </p>
+          <div className="page-head-aside">
+            <p className="page-lede">
+              Four systems, covered properly — the problem each one solved, how
+              it was architected, the trade-offs I made, and what shipped.
+            </p>
+          </div>
         </div>
       </div>
 

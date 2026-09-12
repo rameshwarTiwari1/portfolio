@@ -115,11 +115,11 @@ export default async function CaseStudyPage({ params }: Props) {
 
       {caseStudy.metrics.length > 0 ? (
         <div className="shell">
-          <dl className="stat-strip">
+          <dl className="proof !mt-0">
             {caseStudy.metrics.map((metric) => (
-              <div key={metric.label} className="stat">
-                <dt className="stat-value">{metric.value}</dt>
-                <dd className="stat-label">{metric.label}</dd>
+              <div key={metric.label} className="proof-item">
+                <dt className="proof-value">{metric.value}</dt>
+                <dd>{metric.label}</dd>
               </div>
             ))}
           </dl>

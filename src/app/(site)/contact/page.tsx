@@ -1,7 +1,13 @@
 import type { Metadata } from "next";
 
 import { ContactForm } from "@/components/content/ContactForm";
-import { Github, Linkedin, Mail, MapPin } from "@/components/ui/Icons";
+import {
+  ArrowUpRight,
+  Github,
+  Linkedin,
+  Mail,
+  MapPin,
+} from "@/components/ui/Icons";
 import { getSite } from "@/lib/content";
 
 export const metadata: Metadata = {
@@ -24,66 +30,81 @@ export default async function ContactPage() {
   return (
     <>
       <div className="page-header">
-        <div className="shell">
-          <h1 className="page-title">Let us talk</h1>
-          <p className="page-lede">
-            Whether it is a role, a system that needs rearchitecting, or a
-            question about something I have written — send it over.
-          </p>
+        <div className="shell page-head-split">
+          <h1 className="page-title !mt-0">Let us talk</h1>
+          <div className="page-head-aside">
+            <p className="page-lede">
+              Whether it is a role, a system that needs rearchitecting, or a
+              question about something I have written — send it over.
+            </p>
+          </div>
         </div>
       </div>
 
       <section className="section">
         <div className="shell">
           <div className="contact-grid">
-            <div className="flex flex-col gap-8">
-              <div className="flex flex-col gap-4">
-                <a
-                  href={`mailto:${site.email}`}
-                  className="link-arrow text-ink"
-                >
+            {/* Direct routes first — plenty of people will never use a form. */}
+            <aside className="contact-card">
+              <p className="contact-card-title">Reach me directly</p>
+
+              <ul className="contact-list">
+                <li>
                   <Mail />
-                  {site.email}
-                </a>
-                {site.phone ? (
-                  <a
-                    href={`tel:${site.phone.replace(/\s/g, "")}`}
-                    className="link-arrow text-ink"
-                  >
-                    {site.phone}
+                  <a href={`mailto:${site.email}`} className="link">
+                    {site.email}
                   </a>
+                </li>
+                {site.phone ? (
+                  <li>
+                    <span className="contact-bullet" aria-hidden="true" />
+                    <a
+                      href={`tel:${site.phone.replace(/\s/g, "")}`}
+                      className="link"
+                    >
+                      {site.phone}
+                    </a>
+                  </li>
                 ) : null}
                 {site.location ? (
-                  <p className="link-arrow">
+                  <li>
                     <MapPin />
-                    {site.location}
-                  </p>
+                    <span>{site.location}</span>
+                  </li>
                 ) : null}
-              </div>
+              </ul>
 
               {site.socials.length > 0 ? (
-                <div className="flex flex-col gap-4">
-                  {site.socials.map((social) => (
-                    <a
-                      key={social.url}
-                      href={social.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="link-arrow text-ink"
-                    >
-                      {socialIcon(social.label)}
-                      {social.label}
-                    </a>
-                  ))}
-                </div>
+                <>
+                  <p className="contact-card-title">Elsewhere</p>
+                  <ul className="contact-list">
+                    {site.socials.map((social) => (
+                      <li key={social.url}>
+                        {socialIcon(social.label)}
+                        <a
+                          href={social.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="link"
+                        >
+                          {social.label}
+                        </a>
+                        <ArrowUpRight className="contact-out" />
+                      </li>
+                    ))}
+                  </ul>
+                </>
               ) : null}
 
-              <div className="callout">
-                <p>I read everything and usually reply within a day.</p>
-              </div>
-            </div>
+              <p className="contact-note">
+                I read everything and usually reply within a day.
+              </p>
+            </aside>
 
-            <ContactForm email={site.email} />
+            <div className="contact-panel">
+              <h2 className="contact-panel-title">Send a message</h2>
+              <ContactForm email={site.email} />
+            </div>
           </div>
         </div>
       </section>

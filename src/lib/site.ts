@@ -16,24 +16,24 @@ export const SITE_URL =
  * its own, and be far too long to inline. `section` is the element id the
  * scroll-spy watches.
  */
+/**
+ * The nav goes to real pages. Each destination is a full document with its
+ * own URL, which is what lets a case study or an article be shared, bookmarked
+ * and ranked on its own terms.
+ *
+ * The home page still reads as one continuous story and keeps its section ids,
+ * so `/#work` and friends remain valid deep links from anywhere.
+ */
 export const NAV_LINKS = [
-  { href: "/#work", section: "work", label: "Work" },
-  { href: "/#writing", section: "writing", label: "Writing" },
-  { href: "/#about", section: "about", label: "About" },
-  { href: "/#contact", section: "contact", label: "Contact" },
+  { href: "/work", label: "Work" },
+  { href: "/engineering", label: "Writing" },
+  { href: "/about", label: "About" },
+  { href: "/contact", label: "Contact" },
   // Freelance/services surface — parked, not deleted. The page still lives in
   // src/app/(site)/_hire; the leading underscore keeps it out of the router.
   // To bring it back: rename the folder to `hire` and uncomment this entry
   // plus the CTAs marked "freelance CTA" in Header, Footer, and the home page.
-  // { href: "/hire", section: null, label: "Services" },
-] as const;
-
-/** Full pages, linked from within their home-page section. */
-export const DEEP_LINKS = [
-  { href: "/work", label: "Work" },
-  { href: "/engineering", label: "Engineering" },
-  { href: "/about", label: "About" },
-  { href: "/contact", label: "Contact" },
+  // { href: "/hire", label: "Services" },
 ] as const;
 
 export function absoluteUrl(path = "/"): string {

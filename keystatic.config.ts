@@ -326,6 +326,41 @@ export default config({
           multiline: true,
           validation: { isRequired: true },
         }),
+        education: fields.array(
+          fields.object({
+            qualification: fields.text({
+              label: "Qualification",
+              validation: { isRequired: true },
+            }),
+            institution: fields.text({
+              label: "Institution",
+              validation: { isRequired: true },
+            }),
+            period: fields.text({ label: "Period" }),
+            note: fields.text({
+              label: "Note",
+              description: 'e.g. "CGPA 9.0/10 · Best Project Award"',
+            }),
+          }),
+          {
+            label: "Education",
+            itemLabel: (p) => p.fields.qualification.value,
+          },
+        ),
+        certifications: fields.array(
+          fields.object({
+            name: fields.text({
+              label: "Certification",
+              validation: { isRequired: true },
+            }),
+            issuer: fields.text({ label: "Issuer" }),
+            year: fields.text({ label: "Year" }),
+          }),
+          {
+            label: "Certifications",
+            itemLabel: (p) => p.fields.name.value,
+          },
+        ),
         content: richText("public/images/about", "/images/about/"),
       },
     }),

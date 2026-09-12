@@ -5,7 +5,7 @@
  * any CSS colour syntax (lab, oklch, color-mix, rgb) to rgba bytes. Parsing
  * the computed string in Node silently missed everything.
  */
-const { chromium } = require("@playwright/test");
+import { chromium } from "@playwright/test";
 
 const ROUTES = [
   "/",
@@ -116,22 +116,31 @@ const audit = () => {
     /* --- text clipped by a constrained box --------------------------- */
     if (
       st.overflow === "hidden" &&
-      el.scrollHeight > el.clientHeight + 2 &&
       el.clientHeight > 0 &&
       el.textContent.trim() &&
-      !el.closest(SCROLLERS) && 
+      !el.closest(SCROLLERS) &&
       !el.classList.contains("sr-only")
     ) {
-      const key = `clip|${tag}`;
-      if (!seen.has(key)) {
-        seen.add(key);
-        out.push(`text clipped: ${tag} content ${el.scrollHeight}px in ${el.clientHeight}px`);
+      const cut = [...el.children].find((c) => {
+        const cs = getComputedStyle(c);
+        if (cs.position === "absolute" || cs.position === "fixed") return false;
+        const cb = c.getBoundingClientRect();
+        return cb.height > 0 && cb.bottom > r.bottom + 2;
+      });
+
+      if (cut) {
+        const key = `clip|${tag}`;
+        if (!seen.has(key)) {
+          seen.add(key);
+          out.push(`content clipped: ${tag} cuts off ${cut.tagName.toLowerCase()}`);
+        }
       }
     }
 
     /* --- interactive target too small -------------------------------- */
     const interactive = el.matches("a[href], button, input, select, textarea, [role=tab]");
-    if (interactive && !el.closest(".prose, .honeypot") && (r.width < 24 || r.height < 24)) {
+    const inlineExempt = el.matches(".link") || el.closest(".prose, .honeypot");
+    if (interactive && !inlineExempt && (r.width < 24 || r.height < 24)) {
       const key = `target|${tag}`;
       if (!seen.has(key)) {
         seen.add(key);
@@ -182,7 +191,7 @@ const audit = () => {
       });
 
       for (const route of ROUTES) {
-        const res = await page.goto(`http://127.0.0.1:3100${route}`, {
+        const res = await page.goto(`http://127.0.0.1:${process.env.AUDIT_PORT ?? 3100}${route}`, {
           waitUntil: "networkidle",
         });
         const expected = route.includes("does-not-exist") ? 404 : 200;

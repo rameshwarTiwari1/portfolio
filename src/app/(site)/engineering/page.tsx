@@ -20,28 +20,31 @@ export default async function EngineeringPage() {
   return (
     <>
       <div className="page-header">
-        <div className="shell">
+        <div className="shell page-head-split">
           <h1 className="page-title">Writing</h1>
-          <p className="page-lede">
-            Architecture decisions explained through systems I have actually
-            built — what the constraint was, what I chose, and what it cost.
-          </p>
 
-          {tags.length > 0 ? (
-            <ul className="mt-7 flex flex-wrap gap-2">
-              {tags.map(({ tag, count }) => (
-                <li key={tag} className="tag">
-                  {tag}
-                  <span className="ml-1.5 text-ink-faint">{count}</span>
-                </li>
-              ))}
-            </ul>
-          ) : null}
+          <div className="page-head-aside">
+            <p className="page-lede">
+              Architecture decisions explained through systems I have actually
+              built — what the constraint was, what I chose, and what it cost.
+            </p>
 
-          <a href="/engineering/rss.xml" className="link-arrow mt-7">
-            <Rss />
-            Subscribe via RSS
-          </a>
+            {tags.length > 0 ? (
+              <ul className="flex flex-wrap gap-2">
+                {tags.map(({ tag, count }) => (
+                  <li key={tag} className="tag">
+                    {tag}
+                    <span className="ml-1.5 text-ink-faint">{count}</span>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+
+            <a href="/engineering/rss.xml" className="link-arrow">
+              <Rss />
+              Subscribe via RSS
+            </a>
+          </div>
         </div>
       </div>
 

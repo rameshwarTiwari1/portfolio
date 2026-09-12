@@ -97,6 +97,20 @@ Verify with the Impeccable detector before claiming a UI change is done:
 ~/.claude/skills/impeccable/scripts/bin/windows-x64/impeccable.exe detect --json <files>
 ```
 
+### 0c. Two mistakes that cost real bugs here
+
+**Renaming a component class is a cross-page change.** The redesign renamed
+`.timeline*` → `.xp*` and dropped `.stat*` and `.contact-grid` from
+`globals.css`, but `/about`, `/contact` and `/work/[slug]` still referenced
+them. Those sections rendered as bare, unstyled markup and nothing failed.
+Before deleting a class, grep the whole of `src` for it.
+
+**Never parse a computed colour as a string.** Chrome returns `lab()`,
+`oklch()` or `color(srgb …)` from `getComputedStyle` depending on how the
+value was authored. A regex for `rgb()` returns null, the check gets skipped,
+and the audit reports "0 problems" having measured nothing. Paint the colour
+onto a 1×1 canvas and read the pixel instead — see `tests/e2e/contrast.ts`.
+
 ### 1. Design tokens are the only source of visual truth
 
 Every color, size, radius, duration, and font lives in
@@ -234,6 +248,9 @@ npm run lint           # ESLint
 npm run test           # Vitest unit tests
 npm run test:e2e       # Playwright, all viewports
 npm run verify         # typecheck + lint + test + build. Run before pushing.
+npm run audit:ui       # every route x both themes x 4 viewports:
+                       # overflow, clipping, touch targets, WCAG contrast.
+                       # Needs a server on :3100 (AUDIT_PORT overrides).
 ```
 
 ---
@@ -248,6 +265,7 @@ A change is not complete until:
 4. No horizontal scroll at 320px
 5. Keyboard-navigable, with visible focus
 6. No new hardcoded visual values
+7. `npm run audit:ui` reports 0 problems
 
 Do not report work as finished without running these. If a check fails and the
 fix is out of scope, say so explicitly rather than staying silent.

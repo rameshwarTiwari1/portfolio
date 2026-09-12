@@ -145,6 +145,26 @@ export async function getAbout() {
   return {
     heading: str(a.heading),
     lede: str(a.lede),
+    education: list(
+      a.education as {
+        qualification: string;
+        institution: string;
+        period: string;
+        note: string;
+      }[],
+    ).map((e) => ({
+      qualification: str(e.qualification),
+      institution: str(e.institution),
+      period: str(e.period),
+      note: str(e.note),
+    })),
+    certifications: list(
+      a.certifications as { name: string; issuer: string; year: string }[],
+    ).map((c) => ({
+      name: str(c.name),
+      issuer: str(c.issuer),
+      year: str(c.year),
+    })),
     doc: await renderDoc(a.content),
   };
 }

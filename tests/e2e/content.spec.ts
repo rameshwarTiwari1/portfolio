@@ -138,7 +138,25 @@ test.describe("portfolio positioning", () => {
   test("the hero routes to work and the resume", async ({ page }) => {
     await page.goto("/");
 
-    await expect(page.getByRole("link", { name: /see the work/i }).first()).toBeVisible();
-    await expect(page.getByRole("link", { name: /^resume$/i })).toBeVisible();
+    const hero = page.locator("#main");
+    await expect(hero.getByRole("link", { name: /see the work/i })).toBeVisible();
+    await expect(
+      hero.getByRole("link", { name: "Resume", exact: true }),
+    ).toBeVisible();
+  });
+
+  test("the resume is one click away from the header on every page", async ({
+    page,
+    viewport,
+  }) => {
+    test.skip(!viewport || viewport.width < 960, "hidden behind the mobile menu");
+
+    for (const path of ["/", "/work", "/engineering", "/about", "/contact"]) {
+      await page.goto(path);
+      await expect(
+        page.getByRole("banner").getByRole("link", { name: "Resume", exact: true }),
+        path,
+      ).toBeVisible();
+    }
   });
 });

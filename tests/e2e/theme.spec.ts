@@ -1,5 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 
+import { CONTRAST_HELPERS } from "./contrast";
+
 /**
  * The toggle only works once React has hydrated. `data-ready` is set in the
  * mount effect, so waiting on it removes the race rather than papering over it
@@ -92,20 +94,36 @@ test.describe("theme", () => {
     }
   });
 
-  test("code blocks recolour with the theme", async ({ page }) => {
-    await page.emulateMedia({ colorScheme: "dark" });
-    await page.goto("/engineering/bullmq-redis-background-jobs");
+  /**
+   * This replaces an earlier test that asserted code *changed* colour with the
+   * theme. That was the wrong requirement and it hid a real bug: the code
+   * canvas stays dark in both themes, so switching to a light syntax palette
+   * put dark text on a dark background at 1.83:1. What matters is that the
+   * code stays readable, not that it changes.
+   */
+  for (const scheme of ["dark", "light"] as const) {
+    test(`code stays readable in the ${scheme} theme`, async ({ page }) => {
+      await page.emulateMedia({ colorScheme: scheme });
+      await page.goto("/engineering/bullmq-redis-background-jobs");
+      await expect(page.locator(".shiki").first()).toBeVisible();
 
-    const token = page.locator(".shiki span").first();
-    await expect(token).toBeVisible();
+      const worst = await page.evaluate(`(() => {
+        ${CONTRAST_HELPERS}
 
-    const darkColor = await token.evaluate((el) => getComputedStyle(el).color);
+        const pre = document.querySelector(".shiki");
+        const bg = toRgb(getComputedStyle(pre).backgroundColor);
 
-    await (await themeToggle(page)).click();
-    await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+        let lowest = Infinity;
+        for (const span of pre.querySelectorAll("span")) {
+          if (!span.textContent.trim()) continue;
+          const fg = toRgb(getComputedStyle(span).color);
+          lowest = Math.min(lowest, contrast(fg, bg));
+        }
+        return lowest;
+      })()`) as number;
 
-    const lightColor = await token.evaluate((el) => getComputedStyle(el).color);
-
-    expect(lightColor).not.toBe(darkColor);
-  });
+      // 4.5:1 is the AA floor for body-sized text, which code is.
+      expect(worst, `worst token contrast was ${worst.toFixed(2)}:1`).toBeGreaterThanOrEqual(4.5);
+    });
+  }
 });

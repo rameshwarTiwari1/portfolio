@@ -6,10 +6,7 @@ import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { ArrowRight, Close, Download, Menu } from "@/components/ui/Icons";
-import { useActiveSection } from "@/components/layout/useActiveSection";
 import { NAV_LINKS } from "@/lib/site";
-
-const SECTION_IDS = NAV_LINKS.map((link) => link.section);
 
 /**
  * Scroll position is external state, so it is subscribed to rather than
@@ -35,8 +32,6 @@ export function Header({
 }) {
   const pathname = usePathname();
   const scrolled = useScrolled();
-  const onHome = pathname === "/";
-  const activeSection = useActiveSection(SECTION_IDS, onHome);
   const panelRef = useRef<HTMLDivElement>(null);
 
   /**
@@ -86,16 +81,11 @@ export function Header({
   }, [open]);
 
   /**
-   * On the home page the nav tracks the section in view. Elsewhere it marks
-   * the destination whose content the reader is inside — a case study still
-   * belongs to "Work" even though the URL is /work/vashix.
+   * A case study still belongs to "Work" even though the URL is /work/vashix,
+   * so the nav marks the section the reader is inside, not just exact matches.
    */
-  const isActive = (section: string) => {
-    if (onHome) return activeSection === section;
-    if (section === "work") return pathname.startsWith("/work");
-    if (section === "writing") return pathname.startsWith("/engineering");
-    return pathname.startsWith(`/${section}`);
-  };
+  const isActive = (href: string) =>
+    pathname === href || pathname.startsWith(`${href}/`);
 
   return (
     <header className="site-header" data-scrolled={scrolled || undefined}>
@@ -127,8 +117,8 @@ export function Header({
               key={link.href}
               href={link.href}
               className="nav-link"
-              data-active={isActive(link.section) || undefined}
-              aria-current={isActive(link.section) ? "location" : undefined}
+              data-active={isActive(link.href) || undefined}
+              aria-current={isActive(link.href) ? "page" : undefined}
             >
               {link.label}
             </Link>
@@ -188,7 +178,7 @@ export function Header({
               key={link.href}
               href={link.href}
               className="mobile-nav-link"
-              data-active={isActive(link.section) || undefined}
+              data-active={isActive(link.href) || undefined}
               style={{ "--i": index } as React.CSSProperties}
             >
               {link.label}
