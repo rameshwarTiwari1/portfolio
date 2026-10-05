@@ -1,0 +1,1071 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rameshwar Tiwari, Full-Stack Engineer</title>
+<meta name="description" content="Full-stack software engineer in Mumbai. Multi-tenant SaaS architecture, AWS infrastructure, background processing, and RAG-based AI systems.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%277%27 fill=%27%23d97757%27/%3E%3Ctext x=%2716%27 y=%2721%27 font-family=%27monospace%27 font-size=%2714%27 font-weight=%27700%27 text-anchor=%27middle%27 fill=%27%231f1e1b%27%3Ert%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:ital,wght@0,400;0,500;1,400&family=Newsreader:ital,opsz,wght@0,6..72,300..600;1,6..72,300..500&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+<script>
+  /* theme bootstrap before paint */
+  (function () {
+    var t = null;
+    try { t = localStorage.getItem("rt-theme"); } catch (e) {}
+    if (!t) t = matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+    document.documentElement.dataset.theme = t;
+  })();
+</script>
+<style>
+/* ==========================================================================
+   Tokens. Every colour, size, radius and duration on the page comes from here.
+   ========================================================================== */
+:root {
+  --ground:  #1f1e1b;   /* editor surface */
+  --chrome:  #171614;   /* title bar, activity bar */
+  --panel:   #262521;   /* terminal, explorer */
+  --raised:  #2e2c27;   /* hover, selected row */
+  --line:    #3a3832;
+  --ink:     #eeeae1;
+  --ink-2:   #b9b3a6;
+  --ink-3:   #999385;
+  --clay:    #d97757;   /* the one accent */
+  --on-clay: #1f1e1b;
+  --sage:    #a7b58a;   /* code strings only */
+  --sand:    #d8b26e;   /* code numbers only */
+  --selection: rgb(217 119 87 / .32);
+  --glow:    rgb(217 119 87 / .14);
+  --shadow:  0 24px 60px -24px rgb(8 7 5 / .7), 0 2px 6px rgb(8 7 5 / .35);
+
+  --f-display: "Newsreader", "Iowan Old Style", Georgia, serif;
+  --f-sans: "Geist", ui-sans-serif, system-ui, sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, "Cascadia Code", monospace;
+
+  --t-xs: .78rem; --t-sm: .875rem; --t-base: 1rem; --t-md: 1.125rem;
+  --t-lg: 1.5rem; --t-xl: clamp(1.9rem, 3.4vw, 2.75rem);
+  --t-hero: clamp(2.6rem, 5.4vw, 4.6rem);
+
+  --r-sm: 4px; --r-md: 6px; --r-lg: 10px;   /* tokens · controls · panels. Chrome is square. */
+  --ease: cubic-bezier(.16, 1, .3, 1);
+  --dur: 220ms;
+
+  --bar-title: 40px; --bar-tabs: 38px; --bar-status: 26px;
+  --top: calc(var(--bar-title) + var(--bar-tabs));
+  --gutter-w: 0px; --activity-w: 0px;
+  --pad: 16px;
+  --line-h: 28px;
+}
+:root[data-theme="light"] {
+  --ground:  #faf9f5;
+  --chrome:  #f0eee6;
+  --panel:   #f3f1ea;
+  --raised:  #e8e5da;
+  --line:    #dcd8cc;
+  --ink:     #1f1e1b;
+  --ink-2:   #4d4a43;
+  --ink-3:   #6b675e;
+  --clay:    #b4532f;
+  --on-clay: #faf9f5;
+  --sage:    #55663a;
+  --sand:    #8a6417;
+  --selection: rgb(180 83 47 / .2);
+  --glow:    rgb(217 119 87 / .16);
+  --shadow:  0 24px 50px -28px rgb(70 50 30 / .35), 0 2px 6px rgb(70 50 30 / .08);
+}
+@media (min-width: 768px)  { :root { --gutter-w: 56px; --pad: 40px; } }
+@media (min-width: 1024px) { :root { --activity-w: 48px; --pad: 56px; } }
+
+/* ==========================================================================
+   Base + browser surfaces
+   ========================================================================== */
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: calc(var(--top) + 8px); -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--ground); color: var(--ink);
+  font: 400 var(--t-base)/1.6 var(--f-sans);
+  -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+  padding-bottom: var(--bar-status);
+  overflow-x: clip;
+}
+::selection { background: var(--selection); color: var(--ink); }
+:focus-visible { outline: 2px solid var(--clay); outline-offset: 2px; border-radius: var(--r-sm); }
+a { color: inherit; text-underline-offset: .22em; text-decoration-thickness: 1px; }
+img { display: block; max-width: 100%; }
+button { font: inherit; color: inherit; }
+* { scrollbar-width: thin; scrollbar-color: var(--line) transparent; }
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb { background: var(--line); border: 3px solid transparent; background-clip: padding-box; border-radius: 10px; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.skip { position: fixed; left: 12px; top: -60px; z-index: 100; background: var(--clay); color: var(--on-clay); padding: 10px 14px; border-radius: var(--r-md); transition: top var(--dur) var(--ease); }
+.skip:focus { top: 12px; }
+.mono { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+.i { font-size: 1.15em; line-height: 0; vertical-align: -.15em; }
+
+/* ==========================================================================
+   Window chrome: title bar + tab strip (sticky), activity bar, status bar
+   ========================================================================== */
+.top { position: sticky; top: 0; z-index: 30; background: var(--chrome); border-bottom: 1px solid var(--line); }
+.titlebar {
+  height: var(--bar-title); display: grid; align-items: center; gap: 12px;
+  grid-template-columns: auto 1fr auto; padding-inline: 12px;
+}
+.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; font-weight: 500; font-size: var(--t-sm); min-height: 40px; }
+.brand-mark {
+  width: 24px; height: 24px; border-radius: var(--r-md); display: grid; place-items: center;
+  background: var(--clay); color: var(--on-clay); font: 600 12px/1 var(--f-mono);
+}
+.brand small { color: var(--ink-3); font-weight: 400; display: none; }
+@media (min-width: 640px) { .brand small { display: inline; } }
+.command-center {
+  justify-self: center; width: min(440px, 100%); height: 28px;
+  display: none; align-items: center; gap: 8px; padding: 0 10px;
+  background: var(--panel); border: 1px solid var(--line); border-radius: var(--r-md);
+  color: var(--ink-3); font-size: var(--t-xs); cursor: pointer;
+  transition: border-color var(--dur) var(--ease), color var(--dur) var(--ease);
+}
+.command-center:hover { border-color: var(--ink-3); color: var(--ink-2); }
+.command-center kbd { margin-left: auto; }
+@media (min-width: 768px) { .command-center { display: flex; } }
+kbd { font: 500 11px/1 var(--f-mono); padding: 3px 5px; border: 1px solid var(--line); border-radius: var(--r-sm); color: var(--ink-2); background: var(--ground); }
+.title-actions { display: flex; align-items: center; gap: 4px; justify-self: end; }
+.icon-btn {
+  min-width: 44px; height: 36px; padding: 0 10px; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  background: transparent; border: 0; border-radius: var(--r-md); color: var(--ink-2); cursor: pointer; font-size: var(--t-xs); text-decoration: none;
+  transition: background var(--dur) var(--ease), color var(--dur) var(--ease);
+}
+.icon-btn:hover { background: var(--raised); color: var(--ink); }
+.icon-btn .label { display: none; }
+@media (min-width: 640px) { .icon-btn .label { display: inline; } }
+
+.tabs { display: flex; height: var(--bar-tabs); overflow-x: auto; scrollbar-width: none; padding-left: var(--activity-w); }
+.tabs::-webkit-scrollbar { display: none; }
+.tab {
+  position: relative; flex: none; display: flex; align-items: center; gap: 8px;
+  padding: 0 16px; min-height: 38px; text-decoration: none; white-space: nowrap;
+  font: 400 13px/1 var(--f-mono); color: var(--ink-3);
+  border-right: 1px solid var(--line);
+  transition: color var(--dur) var(--ease), background var(--dur) var(--ease);
+}
+.tab .i { color: var(--ink-3); transition: color var(--dur) var(--ease); }
+.tab:hover { color: var(--ink-2); background: var(--panel); }
+.tab[aria-current="true"] { color: var(--ink); background: var(--ground); }
+.tab[aria-current="true"] .i { color: var(--clay); }
+.tab::after {
+  content: ""; position: absolute; left: 0; right: 0; top: 0; height: 2px; background: var(--clay);
+  transform: scaleX(0); transform-origin: left; transition: transform 380ms var(--ease);
+}
+.tab[aria-current="true"]::after { transform: scaleX(1); }
+.tab[aria-current="true"] + .tab { }
+.tabs-fill { flex: 1; }
+
+.activity {
+  display: none; position: fixed; z-index: 20; left: 0; top: var(--top); bottom: var(--bar-status); width: var(--activity-w);
+  background: var(--chrome); border-right: 1px solid var(--line);
+  flex-direction: column; align-items: center; padding-top: 6px; gap: 2px;
+}
+@media (min-width: 1024px) { .activity { display: flex; } }
+.activity a, .activity button {
+  position: relative; width: 48px; height: 46px; display: grid; place-items: center; color: var(--ink-3);
+  background: none; border: 0; cursor: pointer; font-size: 22px; text-decoration: none;
+  transition: color var(--dur) var(--ease);
+}
+.activity a:hover, .activity button:hover { color: var(--ink); }
+.activity a[aria-current="true"] { color: var(--ink); }
+.activity a[aria-current="true"]::before { content: ""; position: absolute; left: 0; top: 8px; bottom: 8px; width: 2px; background: var(--clay); }
+.activity .spacer { flex: 1; }
+.activity [data-tip]:hover::after, .activity [data-tip]:focus-visible::after {
+  content: attr(data-tip); position: absolute; left: 54px; top: 50%; transform: translateY(-50%);
+  background: var(--panel); border: 1px solid var(--line); color: var(--ink); white-space: nowrap;
+  font: 400 12px/1 var(--f-sans); padding: 7px 9px; border-radius: var(--r-md); box-shadow: var(--shadow); pointer-events: none;
+}
+
+.status {
+  position: fixed; z-index: 30; left: 0; right: 0; bottom: 0; height: var(--bar-status);
+  display: flex; align-items: center; gap: 2px; padding: 0 6px;
+  background: var(--clay); color: var(--on-clay); font: 500 12px/1 var(--f-sans);
+}
+.status span { display: inline-flex; align-items: center; gap: 6px; padding: 0 8px; height: 100%; white-space: nowrap; }
+.status .right { margin-left: auto; display: flex; height: 100%; }
+.status .wide { display: none; }
+@media (min-width: 768px) { .status .wide { display: inline-flex; } }
+
+/* ==========================================================================
+   Editor area + line-number gutter
+   ========================================================================== */
+.editor { position: relative; padding-left: calc(var(--activity-w) + var(--gutter-w)); }
+.gutter {
+  display: none; position: absolute; top: 0; bottom: 0; left: var(--activity-w); width: var(--gutter-w);
+  padding-right: 16px; text-align: right; overflow: hidden; pointer-events: none; user-select: none;
+  font: 400 12px/var(--line-h) var(--f-mono); color: var(--ink-3); opacity: .5; white-space: pre;
+  border-right: 1px solid color-mix(in oklab, var(--line) 50%, transparent);
+}
+@media (min-width: 768px) { .gutter { display: block; } }
+.wrap { max-width: 1180px; margin-inline: auto; padding-inline: var(--pad); }
+
+section { position: relative; }
+.sec { padding-block: clamp(72px, 10vw, 128px) clamp(80px, 11vw, 140px); }
+.sec-tight { padding-block: clamp(56px, 7vw, 88px); }
+.sec + .sec { border-top: 1px solid var(--line); }
+
+h1, h2, h3 { font-family: var(--f-display); font-weight: 400; letter-spacing: -.015em; margin: 0; text-wrap: balance; }
+h2 { font-size: var(--t-xl); line-height: 1.08; max-width: 22ch; }
+h3 { font-size: var(--t-lg); line-height: 1.2; }
+p { margin: 0; text-wrap: pretty; }
+.lede { color: var(--ink-2); font-size: var(--t-md); max-width: 60ch; }
+.sec-head { display: grid; gap: 16px; margin-bottom: clamp(36px, 5vw, 60px); }
+.path { font: 400 var(--t-xs)/1 var(--f-mono); color: var(--ink-3); display: flex; align-items: center; gap: 6px; }
+.path b { color: var(--ink-2); font-weight: 400; }
+
+.btn {
+  display: inline-flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 18px;
+  border-radius: var(--r-md); border: 1px solid transparent; text-decoration: none; cursor: pointer;
+  font: 500 var(--t-sm)/1 var(--f-sans); white-space: nowrap;
+  transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease), transform 120ms var(--ease), color var(--dur) var(--ease);
+}
+.btn:active { transform: translateY(1px); }
+.btn-primary { background: var(--clay); color: var(--on-clay); }
+.btn-primary:hover { background: color-mix(in oklab, var(--clay) 86%, var(--ink)); }
+.btn-quiet { border-color: var(--line); color: var(--ink); }
+.btn-quiet:hover { border-color: var(--ink-3); background: var(--panel); }
+.link { color: var(--ink); text-decoration: underline; text-decoration-color: color-mix(in oklab, var(--clay) 70%, transparent); transition: text-decoration-color var(--dur) var(--ease); }
+.link:hover { text-decoration-color: var(--clay); }
+
+/* ==========================================================================
+   Hero: headline left, live Claude Code session right
+   ========================================================================== */
+.hero { min-height: calc(100dvh - var(--top) - var(--bar-status)); display: grid; align-items: center; padding-block: 48px 64px; isolation: isolate; }
+.hero::before {
+  content: ""; position: absolute; z-index: -1; inset: 0 0 auto auto; width: min(900px, 90vw); height: 620px;
+  background: radial-gradient(closest-side at 70% 40%, var(--glow), transparent 75%);
+  pointer-events: none;
+}
+.hero-grid { display: grid; gap: 48px; align-items: center; }
+@media (min-width: 1024px) { .hero-grid { grid-template-columns: 1.02fr .98fr; gap: 56px; } }
+.byline { display: flex; align-items: center; gap: 12px; margin-bottom: 28px; }
+.byline img { width: 44px; height: 44px; border-radius: 12px; object-fit: cover; background: var(--panel); }
+.byline strong { display: block; font-weight: 500; font-size: var(--t-base); line-height: 1.3; }
+.byline span { font-size: var(--t-sm); color: var(--ink-3); }
+.hero h1 { font-size: var(--t-hero); line-height: 1.02; letter-spacing: -.025em; font-weight: 380; max-width: 15ch; }
+.hero h1 em { font-style: italic; color: var(--clay); font-weight: 360; padding-right: .04em; }
+.hero .lede { margin-top: 24px; max-width: 48ch; }
+.hero-cta { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 36px; }
+
+.term {
+  background: var(--panel); border: 1px solid var(--line); border-radius: var(--r-lg);
+  box-shadow: var(--shadow); overflow: hidden; display: flex; flex-direction: column;
+  min-width: 0;
+}
+.term-bar { display: flex; align-items: center; gap: 2px; padding: 0 8px 0 4px; height: 38px; border-bottom: 1px solid var(--line); font: 400 12px/1 var(--f-mono); color: var(--ink-3); }
+.term-bar .t { padding: 0 10px; height: 100%; display: flex; align-items: center; gap: 6px; }
+.term-bar .t.on { color: var(--ink); box-shadow: inset 0 -1px 0 var(--clay); }
+.term-bar .grow { flex: 1; }
+.term-body {
+  height: 440px; overflow-y: auto; padding: 16px 18px 12px; cursor: text;
+  font: 400 13px/1.65 var(--f-mono); color: var(--ink-2); overscroll-behavior: contain;
+}
+@media (max-width: 639px) { .term-body { height: 400px; font-size: 12.5px; padding: 14px; } }
+.term-body p, .term-body div { margin: 0; overflow-wrap: anywhere; }
+.welcome { border: 1px solid var(--clay); border-radius: var(--r-md); padding: 10px 14px; margin-bottom: 16px; color: var(--ink-2); }
+.welcome b { color: var(--ink); font-weight: 500; }
+.welcome .c { color: var(--clay); }
+.u { color: var(--ink); }                  /* user input echo */
+.u::before { content: "> "; color: var(--ink-3); }
+.out { padding-left: 20px; position: relative; margin: 6px 0 14px; }
+.dot::before { content: "⏺"; position: absolute; left: 0; color: var(--clay); font-size: 11px; top: 1px; }
+.dot.tool::before { color: var(--sage); }
+.tool b { color: var(--ink); font-weight: 500; }
+.tool-res { color: var(--ink-3); padding-left: 20px; margin-top: -10px; margin-bottom: 12px; }
+.ans { color: var(--ink); }
+.k { color: var(--clay); } .s { color: var(--sage); } .n { color: var(--sand); } .c { color: var(--ink-3); font-style: italic; }
+.term a { color: var(--ink); }
+.spin { color: var(--clay); margin: 4px 0 12px; }
+.spin .w { color: var(--ink-3); }
+.prompt-row { display: flex; align-items: center; gap: 8px; border: 1px solid var(--line); border-radius: var(--r-md); padding: 0 12px; margin-top: 6px; transition: border-color var(--dur) var(--ease); }
+.prompt-row:focus-within { border-color: var(--ink-3); }
+.prompt-row span { color: var(--ink-3); }
+.prompt-row input {
+  flex: 1; min-width: 0; height: 40px; background: transparent; border: 0; outline: 0; color: var(--ink);
+  font: inherit; caret-color: var(--clay);
+}
+.prompt-row input::placeholder { color: var(--ink-3); }
+.term-hint { padding: 8px 2px 0; color: var(--ink-3); font-size: 11.5px; }
+.term-hint button { background: none; border: 0; padding: 4px 2px; color: var(--ink-2); cursor: pointer; font: inherit; text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: 3px; }
+.term-hint button:hover { color: var(--ink); text-decoration-color: var(--clay); }
+
+/* ==========================================================================
+   Work: explorer + preview
+   ========================================================================== */
+.explorer-grid { display: grid; gap: 0; border: 1px solid var(--line); border-radius: var(--r-lg); overflow: hidden; background: var(--ground); }
+@media (min-width: 900px) { .explorer-grid { grid-template-columns: 280px 1fr; } }
+.explorer { background: var(--panel); border-bottom: 1px solid var(--line); padding: 10px 0 12px; }
+@media (min-width: 900px) { .explorer { border-bottom: 0; border-right: 1px solid var(--line); } }
+.explorer-title { font: 500 11px/1 var(--f-sans); color: var(--ink-3); padding: 8px 16px 12px; letter-spacing: .02em; }
+.folder { display: flex; align-items: center; gap: 6px; padding: 6px 12px; font: 400 13px/1.2 var(--f-mono); color: var(--ink-2); }
+.files { list-style: none; margin: 0; padding: 0; }
+.file {
+  width: 100%; display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 12px 0 34px; text-align: left;
+  background: none; border: 0; cursor: pointer; font: 400 13px/1.3 var(--f-mono); color: var(--ink-2);
+  transition: background var(--dur) var(--ease), color var(--dur) var(--ease);
+}
+.file:hover { background: var(--raised); color: var(--ink); }
+.file[aria-selected="true"] { background: var(--raised); color: var(--ink); box-shadow: inset 1px 0 0 var(--clay); }
+.file .i { color: var(--ink-3); }
+.file[aria-selected="true"] .i { color: var(--clay); }
+.file .badge { margin-left: auto; font: 500 10.5px/1 var(--f-sans); color: var(--clay); border: 1px solid currentColor; padding: 3px 6px; border-radius: var(--r-sm); }
+.outline { margin-top: 18px; border-top: 1px solid var(--line); padding-top: 4px; }
+.outline ol { list-style: none; margin: 0; padding: 0 16px; counter-reset: o; }
+.outline li { counter-increment: o; display: flex; gap: 10px; font-size: var(--t-sm); color: var(--ink-2); padding: 5px 0; }
+.outline li::before { content: counter(o); font: 400 12px/1.6 var(--f-mono); color: var(--ink-3); width: 1ch; }
+.preview { padding: clamp(24px, 4vw, 48px); min-height: 520px; min-width: 0; }
+.preview-inner { animation: swap 420ms var(--ease) both; }
+@keyframes swap { from { opacity: 0; filter: blur(4px); transform: translateY(6px); } to { opacity: 1; filter: none; transform: none; } }
+.preview h3 { font-size: clamp(2rem, 3.6vw, 2.9rem); line-height: 1.05; letter-spacing: -.02em; margin-top: 18px; }
+.preview .tagline { font-family: var(--f-display); font-size: 1.28rem; line-height: 1.45; color: var(--ink-2); margin-top: 14px; max-width: 40ch; font-weight: 350; }
+.meta { display: flex; flex-wrap: wrap; gap: 8px 28px; margin-top: 26px; font-size: var(--t-sm); color: var(--ink-3); }
+.meta b { color: var(--ink); font-weight: 500; display: block; }
+.preview .summary { margin-top: 26px; max-width: 62ch; color: var(--ink-2); }
+.results { margin: 26px 0 0; padding: 0; list-style: none; display: grid; gap: 8px; max-width: 62ch; }
+.results li { display: flex; gap: 10px; color: var(--ink); }
+.results li .i { color: var(--clay); margin-top: .35em; }
+.imports { margin-top: 26px; padding: 14px 16px; background: var(--panel); border-radius: var(--r-md); font: 400 12.5px/1.7 var(--f-mono); color: var(--ink-2); overflow-x: auto; white-space: nowrap; }
+.preview-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 30px; }
+
+/* ==========================================================================
+   Experience: git log
+   ========================================================================== */
+.log { list-style: none; margin: 0; padding: 0; position: relative; }
+.log::before { content: ""; position: absolute; left: 7px; top: 10px; bottom: 10px; width: 2px; background: var(--line); }
+.commit { position: relative; padding-left: 40px; padding-bottom: 56px; display: grid; gap: 10px; }
+.commit:last-child { padding-bottom: 0; }
+.commit::before { content: ""; position: absolute; left: 0; top: 6px; width: 16px; height: 16px; border-radius: 50%; background: var(--ground); border: 2px solid var(--ink-3); }
+.commit.head::before { border-color: var(--clay); background: var(--clay); box-shadow: 0 0 0 4px var(--ground), 0 0 0 5px color-mix(in oklab, var(--clay) 45%, transparent); }
+@media (min-width: 900px) {
+  .commit { grid-template-columns: 220px 1fr; column-gap: 40px; }
+  .commit .when { grid-row: span 3; padding-top: 4px; }
+}
+.when { font: 400 var(--t-xs)/1.6 var(--f-mono); color: var(--ink-3); }
+.ref { display: inline-block; margin-top: 6px; font: 500 11px/1 var(--f-mono); color: var(--clay); border: 1px solid currentColor; border-radius: var(--r-sm); padding: 4px 6px; }
+.commit h3 { font-size: 1.65rem; }
+.commit .org { color: var(--ink-2); font-size: var(--t-sm); }
+.commit ul { margin: 6px 0 0; padding: 0; list-style: none; display: grid; gap: 12px; max-width: 68ch; }
+.commit li { padding-left: 18px; position: relative; color: var(--ink-2); }
+.commit li::before { content: "+"; position: absolute; left: 0; font-family: var(--f-mono); color: var(--sage); }
+.commit li a { font-size: var(--t-sm); white-space: nowrap; }
+.commit.init h3 { font-size: 1.3rem; }
+
+/* ==========================================================================
+   Stack: stack.ts
+   ========================================================================== */
+.code-grid { display: grid; gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: var(--r-lg); overflow: hidden; }
+@media (min-width: 900px) { .code-grid { grid-template-columns: 1fr 1fr; } }
+.code { margin: 0; padding: 24px 26px; background: var(--panel); font: 400 13px/1.75 var(--f-mono); color: var(--ink-2); overflow-x: auto; white-space: pre-wrap; }
+.code .c { display: block; max-width: 58ch; }
+.code .pn { color: var(--ink); }
+@media (max-width: 639px) { .code { padding: 18px 16px; font-size: 12.5px; } }
+
+/* ==========================================================================
+   Writing
+   ========================================================================== */
+.posts { list-style: none; margin: 0; padding: 0; }
+.post { border-top: 1px solid var(--line); }
+.post:last-child { border-bottom: 1px solid var(--line); }
+.post a { display: grid; gap: 10px; padding: 32px 0; text-decoration: none; }
+@media (min-width: 900px) { .post a { grid-template-columns: 150px 1fr 220px; gap: 40px; align-items: baseline; } }
+.post time { font: 400 var(--t-xs)/1.6 var(--f-mono); color: var(--ink-3); }
+.post h3 { font-size: clamp(1.5rem, 2.4vw, 2rem); line-height: 1.15; transition: color var(--dur) var(--ease); }
+.post a:hover h3 { color: var(--clay); }
+.post p { color: var(--ink-2); margin-top: 10px; max-width: 62ch; }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.tag { font: 400 11.5px/1 var(--f-mono); color: var(--ink-3); padding: 5px 7px; background: var(--panel); border-radius: var(--r-sm); }
+
+/* ==========================================================================
+   About
+   ========================================================================== */
+.about-grid { display: grid; gap: 40px; }
+@media (min-width: 900px) { .about-grid { grid-template-columns: 300px 1fr; gap: 72px; align-items: start; } }
+.portrait { border-radius: var(--r-lg); overflow: hidden; background: var(--panel); aspect-ratio: 4 / 5; max-width: 300px; }
+.portrait img { width: 100%; height: 100%; object-fit: cover; filter: saturate(.85) contrast(1.02); }
+.quote { font-family: var(--f-display); font-size: clamp(1.75rem, 3.2vw, 2.6rem); line-height: 1.18; font-weight: 350; letter-spacing: -.015em; max-width: 24ch; margin: 0; }
+.quote em { color: var(--clay); }
+.about-body { display: grid; gap: 18px; margin-top: 28px; color: var(--ink-2); max-width: 64ch; }
+.facts { display: grid; gap: 24px; margin-top: 40px; padding-top: 28px; border-top: 1px solid var(--line); }
+@media (min-width: 640px) { .facts { grid-template-columns: 1fr 1fr; } }
+.facts h3 { font: 500 var(--t-sm)/1.4 var(--f-sans); color: var(--ink-3); letter-spacing: 0; margin-bottom: 8px; }
+.facts p { color: var(--ink); }
+.facts small { display: block; color: var(--ink-3); font-size: var(--t-sm); margin-top: 2px; }
+
+/* ==========================================================================
+   Contact
+   ========================================================================== */
+.contact-grid { display: grid; gap: 48px; }
+@media (min-width: 900px) { .contact-grid { grid-template-columns: 1fr 1fr; gap: 72px; } }
+.direct { display: grid; gap: 4px; margin-top: 32px; }
+.direct-row { display: flex; align-items: center; gap: 12px; min-height: 48px; border-bottom: 1px solid var(--line); }
+.direct-row .i { color: var(--ink-3); font-size: 1.2rem; }
+.direct-row a { text-decoration: none; }
+.direct-row a:hover { color: var(--clay); }
+.direct-row .copy { margin-left: auto; }
+.form { display: grid; gap: 18px; background: var(--panel); border: 1px solid var(--line); border-radius: var(--r-lg); padding: clamp(20px, 3vw, 32px); }
+.field { display: grid; gap: 8px; }
+.field label { font-size: var(--t-sm); font-weight: 500; color: var(--ink); }
+.field input, .field textarea {
+  width: 100%; min-height: 44px; padding: 10px 12px; border-radius: var(--r-md); border: 1px solid var(--line);
+  background: var(--ground); color: var(--ink); font: 400 var(--t-base)/1.5 var(--f-sans);
+  transition: border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+}
+.field textarea { min-height: 132px; resize: vertical; }
+.field input::placeholder, .field textarea::placeholder { color: var(--ink-3); }
+.field input:focus, .field textarea:focus { outline: 0; border-color: var(--clay); box-shadow: 0 0 0 3px color-mix(in oklab, var(--clay) 22%, transparent); }
+.field [aria-invalid="true"] { border-color: var(--clay); }
+.err { font-size: var(--t-sm); color: var(--clay); display: flex; gap: 6px; align-items: center; }
+.err:empty { display: none; }
+.form-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; }
+.form-status { font-size: var(--t-sm); color: var(--ink-2); }
+.btn[disabled] { opacity: .55; cursor: progress; }
+
+.foot { padding: 36px 0 48px; color: var(--ink-3); font-size: var(--t-sm); border-top: 1px solid var(--line); }
+.foot .wrap { display: flex; flex-wrap: wrap; gap: 12px 28px; justify-content: space-between; }
+
+/* ==========================================================================
+   Command palette
+   ========================================================================== */
+.palette-scrim { position: fixed; inset: 0; z-index: 60; background: rgb(10 9 8 / .5); display: none; justify-content: center; align-items: flex-start; padding: 12vh 16px 16px; backdrop-filter: blur(2px); }
+.palette-scrim.open { display: flex; animation: fade 160ms var(--ease); }
+@keyframes fade { from { opacity: 0; } }
+.palette { width: min(560px, 100%); background: var(--panel); border: 1px solid var(--line); border-radius: var(--r-lg); box-shadow: var(--shadow); overflow: hidden; animation: drop 240ms var(--ease); }
+@keyframes drop { from { transform: translateY(-8px) scale(.985); opacity: 0; } }
+.palette input { width: 100%; height: 50px; padding: 0 16px; border: 0; border-bottom: 1px solid var(--line); background: transparent; color: var(--ink); font: 400 15px/1 var(--f-sans); outline: 0; caret-color: var(--clay); }
+.palette input::placeholder { color: var(--ink-3); }
+.palette ul { list-style: none; margin: 0; padding: 6px; max-height: 50vh; overflow-y: auto; }
+.palette li { display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 10px; border-radius: var(--r-md); cursor: pointer; color: var(--ink-2); font-size: var(--t-sm); }
+.palette li .i { color: var(--ink-3); }
+.palette li small { margin-left: auto; font: 400 11.5px/1 var(--f-mono); color: var(--ink-3); }
+.palette li[aria-selected="true"] { background: var(--raised); color: var(--ink); }
+.palette li[aria-selected="true"] .i { color: var(--clay); }
+.palette .empty { padding: 18px 12px; color: var(--ink-3); font-size: var(--t-sm); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 1ms !important; animation-iteration-count: 1 !important; transition-duration: 1ms !important; scroll-behavior: auto !important; }
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="top">
+  <div class="titlebar">
+    <a class="brand" href="#home" aria-label="Rameshwar Tiwari, home">
+      <span class="brand-mark" aria-hidden="true">rt</span>
+      <span>Rameshwar Tiwari <small>&nbsp;/ portfolio</small></span>
+    </a>
+    <button class="command-center" type="button" data-open-palette>
+      <i class="ph ph-magnifying-glass i" aria-hidden="true"></i>
+      <span>Jump to a section or project</span>
+      <kbd>Ctrl K</kbd>
+    </button>
+    <div class="title-actions">
+      <button class="icon-btn" type="button" id="themeBtn" aria-label="Switch to light theme">
+        <i class="ph ph-sun i" aria-hidden="true"></i><span class="label" id="themeLabel">Light</span>
+      </button>
+      <a class="icon-btn" href="/rameshwar-tiwari-resume.pdf">
+        <i class="ph ph-file-arrow-down i" aria-hidden="true"></i><span class="label">Résumé</span>
+      </a>
+    </div>
+  </div>
+  <nav class="tabs" aria-label="Sections">
+    <a class="tab" href="#home"       data-tab="home"><i class="ph ph-file-tsx i" aria-hidden="true"></i>home.tsx</a>
+    <a class="tab" href="#work"       data-tab="work"><i class="ph ph-folder-simple i" aria-hidden="true"></i>work/</a>
+    <a class="tab" href="#experience" data-tab="experience"><i class="ph ph-git-branch i" aria-hidden="true"></i>experience.log</a>
+    <a class="tab" href="#stack"      data-tab="stack"><i class="ph ph-file-ts i" aria-hidden="true"></i>stack.ts</a>
+    <a class="tab" href="#writing"    data-tab="writing"><i class="ph ph-file-md i" aria-hidden="true"></i>writing.md</a>
+    <a class="tab" href="#about"      data-tab="about"><i class="ph ph-user i" aria-hidden="true"></i>about.md</a>
+    <a class="tab" href="#contact"    data-tab="contact"><i class="ph ph-terminal i" aria-hidden="true"></i>contact.sh</a>
+    <span class="tabs-fill" aria-hidden="true"></span>
+  </nav>
+</header>
+
+<aside class="activity" aria-label="Quick navigation">
+  <a href="#work" data-act="work" data-tip="Work" aria-label="Work"><i class="ph ph-files" aria-hidden="true"></i></a>
+  <button type="button" data-open-palette data-tip="Search  Ctrl K" aria-label="Search"><i class="ph ph-magnifying-glass" aria-hidden="true"></i></button>
+  <a href="#experience" data-act="experience" data-tip="Experience" aria-label="Experience"><i class="ph ph-git-branch" aria-hidden="true"></i></a>
+  <a href="#writing" data-act="writing" data-tip="Writing" aria-label="Writing"><i class="ph ph-book-open-text" aria-hidden="true"></i></a>
+  <span class="spacer"></span>
+  <a href="https://github.com/rameshwarTiwari1" data-tip="GitHub" aria-label="GitHub"><i class="ph ph-github-logo" aria-hidden="true"></i></a>
+  <a href="https://www.linkedin.com/in/rameshwar-tiwari-b259401ba/" data-tip="LinkedIn" aria-label="LinkedIn"><i class="ph ph-linkedin-logo" aria-hidden="true"></i></a>
+</aside>
+
+<main id="main" class="editor">
+  <div class="gutter" id="gutter" aria-hidden="true"></div>
+
+  <!-- HERO ---------------------------------------------------------------->
+  <section id="home" class="hero" aria-labelledby="hero-title">
+    <div class="wrap hero-grid">
+      <div>
+        <div class="byline">
+          <img src="../public/images/portrait.webp" alt="" width="44" height="44">
+          <div>
+            <strong>Rameshwar Tiwari</strong>
+            <span>Full-stack engineer in Mumbai, AI and GenAI</span>
+          </div>
+        </div>
+        <h1 id="hero-title">I build multi&#8209;tenant systems that <em>hold up in production.</em></h1>
+        <p class="lede">Scalable SaaS architecture, AWS infrastructure and AI-integrated products. Currently building a media verification platform end to end.</p>
+        <div class="hero-cta">
+          <a class="btn btn-primary" href="#work">Read the case studies</a>
+          <a class="btn btn-quiet" href="#contact">Get in touch</a>
+        </div>
+      </div>
+
+      <div class="term" role="region" aria-label="Interactive terminal">
+        <div class="term-bar">
+          <span class="t on"><i class="ph ph-sparkle i" aria-hidden="true"></i>claude</span>
+          <span class="t">zsh</span>
+          <span class="grow"></span>
+          <span>~/rameshwar</span>
+        </div>
+        <div class="term-body" id="termBody">
+          <div class="welcome">
+            <span class="c">✻</span> Welcome to <b>rameshwar's portfolio</b><br>
+            <span style="color:var(--ink-3)">Type <b>help</b> for commands. cwd: ~/rameshwar</span>
+          </div>
+          <div id="termLog" aria-live="polite"></div>
+          <form class="prompt-row" id="termForm" autocomplete="off">
+            <span aria-hidden="true">&gt;</span>
+            <label for="termInput" class="sr-only">Terminal command</label>
+            <input id="termInput" type="text" spellcheck="false" placeholder="Try: ls work" autocapitalize="off">
+          </form>
+          <div class="term-hint">Try
+            <button type="button" data-cmd="ls work">ls work</button>,
+            <button type="button" data-cmd="cat vashix">cat vashix</button>,
+            <button type="button" data-cmd="stack">stack</button>,
+            <button type="button" data-cmd="contact">contact</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WORK ---------------------------------------------------------------->
+  <section id="work" class="sec" aria-labelledby="work-title">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 id="work-title">Systems I designed and still answer for.</h2>
+        <p class="lede">Each case study follows the same order: the problem, the architecture, what I built, what went wrong, and what it produced.</p>
+      </div>
+
+      <div class="explorer-grid">
+        <div class="explorer">
+          <div class="explorer-title">explorer</div>
+          <div class="folder"><i class="ph ph-caret-down i" aria-hidden="true"></i><i class="ph ph-folder-open i" aria-hidden="true" style="color:var(--clay)"></i>case-studies</div>
+          <ul class="files" role="tablist" aria-label="Case studies" aria-orientation="vertical" id="files"></ul>
+          <div class="outline" aria-hidden="true">
+            <div class="explorer-title" style="padding-top:14px">outline</div>
+            <ol><li>Problem</li><li>Architecture</li><li>Solution</li><li>Challenges</li><li>Outcome</li></ol>
+          </div>
+        </div>
+        <div class="preview" id="preview" role="tabpanel" tabindex="0"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EXPERIENCE ---------------------------------------------------------->
+  <section id="experience" class="sec" aria-labelledby="xp-title">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 id="xp-title">Three roles, newest first.</h2>
+      </div>
+      <ol class="log">
+        <li class="commit head">
+          <div class="when">Feb 2025 to now<br><span class="ref">HEAD → adscult</span></div>
+          <h3>Software Engineer</h3>
+          <p class="org">AdsCult Private Limited, Mumbai</p>
+          <ul>
+            <li>Architected and delivered a multi-tenant enterprise CRM from scratch across five modules: lead management, KPI tracking, project management, attendance and payroll. <a class="link" href="#work" data-study="multi-tenant-enterprise-crm">Case study</a></li>
+            <li>Designed the tenancy model so isolation is enforced at the database layer rather than in application code, making cross-tenant access structurally impossible instead of merely unlikely.</li>
+            <li>Built Courier Hub, an e-commerce logistics platform handling order processing, invoicing and multi-account shipping. <a class="link" href="#work" data-study="courier-hub">Case study</a></li>
+            <li>Moved slow synchronous work onto BullMQ and Redis, improving perceived responsiveness by roughly 40%, and automated recurring SEO workflows with n8n.</li>
+            <li>Provisioned and operated the AWS footprint (EC2, RDS, S3, SQS, Amplify) behind Nginx, and implemented RAG retrieval over Pinecone and pgvector.</li>
+          </ul>
+        </li>
+        <li class="commit">
+          <div class="when">Jan 2024 to Jun 2024</div>
+          <h3>Full Stack Developer Intern</h3>
+          <p class="org">Prabhavti Digital Services, Mumbai</p>
+          <ul>
+            <li>Built MERN applications and added automated tests around authentication flows, which cut production bugs by about 30%.</li>
+            <li>Integrated payment gateway APIs and validated the full transaction lifecycle before release.</li>
+            <li>Improved React performance with lazy loading, code splitting and Redux Toolkit.</li>
+          </ul>
+        </li>
+        <li class="commit">
+          <div class="when">Aug 2023 to Dec 2023</div>
+          <h3>Web Developer Intern</h3>
+          <p class="org">Webriver Solutions, Mumbai</p>
+          <ul>
+            <li>Developed responsive, mobile-first web applications with HTML, CSS, JavaScript and PHP.</li>
+            <li>Wrote automated QA scripts and reworked UI flows based on user feedback rather than assumption.</li>
+          </ul>
+        </li>
+        <li class="commit init">
+          <div class="when">2020 to 2023</div>
+          <h3>BSc in Information Technology</h3>
+          <p class="org">KES Shroff College, Mumbai. CGPA 9.0 and the Best Project Award.</p>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- STACK --------------------------------------------------------------->
+  <section id="stack" class="sec sec-tight" aria-labelledby="stack-title">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 id="stack-title">What I reach for, and why.</h2>
+      </div>
+      <div class="code-grid">
+<pre class="code"><span class="c">// The everyday stack. TypeScript end to end, Prisma against SQL,
+// and Next.js for anything that needs to render fast and rank.</span>
+<span class="k">export const</span> <span class="pn">core</span> = [
+  <span class="s">"TypeScript"</span>, <span class="s">"React"</span>, <span class="s">"Next.js"</span>, <span class="s">"Node.js"</span>,
+  <span class="s">"Express.js"</span>, <span class="s">"Prisma ORM"</span>, <span class="s">"REST APIs"</span>, <span class="s">"SQL"</span>,
+] <span class="k">as const</span>;</pre>
+<pre class="code"><span class="c">// Retrieval built into real products, including deciding when a plain
+// SQL query beats a vector search. More often than the hype suggests.</span>
+<span class="k">export const</span> <span class="pn">ai</span> = [
+  <span class="s">"RAG architecture"</span>, <span class="s">"Pinecone"</span>, <span class="s">"pgvector"</span>,
+  <span class="s">"Semantic search"</span>, <span class="s">"LLM API integration"</span>, <span class="s">"Claude Code"</span>,
+] <span class="k">as const</span>;</pre>
+<pre class="code"><span class="c">// Infrastructure I provision and operate myself, not just deploy onto.
+// Nginx in front, CI/CD behind, observability so failures page someone.</span>
+<span class="k">export const</span> <span class="pn">cloud</span> = [
+  <span class="s">"AWS EC2"</span>, <span class="s">"RDS"</span>, <span class="s">"S3"</span>, <span class="s">"SQS"</span>, <span class="s">"Amplify"</span>,
+  <span class="s">"Docker"</span>, <span class="s">"Nginx"</span>, <span class="s">"CI/CD"</span>,
+] <span class="k">as const</span>;</pre>
+<pre class="code"><span class="c">// The decisions that are expensive to reverse: tenancy boundaries,
+// access control, where the queue sits, which database is right.</span>
+<span class="k">export const</span> <span class="pn">architecture</span> = [
+  <span class="s">"Multi-tenant SaaS"</span>, <span class="s">"RBAC / ABAC"</span>, <span class="s">"PostgreSQL"</span>,
+  <span class="s">"MySQL"</span>, <span class="s">"MongoDB"</span>, <span class="s">"Redis"</span>, <span class="s">"BullMQ"</span>, <span class="s">"Socket.io"</span>,
+] <span class="k">as const</span>;</pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- WRITING ------------------------------------------------------------->
+  <section id="writing" class="sec" aria-labelledby="writing-title">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 id="writing-title">Notes from the parts that broke.</h2>
+      </div>
+      <ul class="posts">
+        <li class="post"><a href="/engineering/postgres-row-level-security-multi-tenant">
+          <time class="mono" datetime="2026-08-18">18 Aug 2026</time>
+          <div><h3>Row-Level Security is the tenant isolation you actually want</h3>
+          <p>Filtering by tenant_id in application code means your security model is "everyone remembers, every time, forever". Postgres RLS moves the boundary under the application.</p></div>
+          <div class="tags"><span class="tag">PostgreSQL</span><span class="tag">Multi-tenancy</span><span class="tag">Security</span></div>
+        </a></li>
+        <li class="post"><a href="/engineering/bullmq-redis-background-jobs">
+          <time class="mono" datetime="2026-07-22">22 Jul 2026</time>
+          <div><h3>What actually belongs on a queue</h3>
+          <p>Moving work to BullMQ made our API roughly 40% more responsive. It also introduced failure modes that did not exist before. The rule I use now, and what it costs.</p></div>
+          <div class="tags"><span class="tag">Node.js</span><span class="tag">Redis</span><span class="tag">BullMQ</span></div>
+        </a></li>
+        <li class="post"><a href="/engineering/rag-in-production-pinecone-pgvector">
+          <time class="mono" datetime="2026-06-30">30 Jun 2026</time>
+          <div><h3>When you do not need a vector database</h3>
+          <p>I have shipped RAG with both Pinecone and pgvector. The most useful lesson was how often semantic search was the wrong tool, and how to tell before you build it.</p></div>
+          <div class="tags"><span class="tag">AI</span><span class="tag">RAG</span><span class="tag">pgvector</span></div>
+        </a></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ABOUT --------------------------------------------------------------->
+  <section id="about" class="sec" aria-labelledby="about-title">
+    <div class="wrap about-grid">
+      <div class="portrait"><img src="../public/images/portrait.webp" alt="Rameshwar Tiwari" width="300" height="375" loading="lazy"></div>
+      <div>
+        <h2 id="about-title" class="sr-only">About</h2>
+        <p class="quote">I care about the decisions that are <em>expensive to reverse.</em></p>
+        <div class="about-body">
+          <p>Schema design, tenant isolation, where the queue boundary sits, what happens when a job fails halfway through. Those choices decide whether a system is still pleasant to work on two years later, and they are much cheaper to get right at the start than to retrofit.</p>
+          <p>Outside working hours I build <a class="link" href="https://vashix.com">Vashix</a>, which hardware-signs photos and video at the moment of capture and verifies them against the C2PA 2.1 provenance standard. It is where I own an architecture end to end rather than inherit one.</p>
+        </div>
+        <div class="facts">
+          <div><h3>Education</h3><p>BSc in Information Technology</p><small>KES Shroff College, 2020 to 2023</small></div>
+          <div><h3>Certifications</h3><p>Claude Code in Action</p><small>Anthropic Education, 2026</small></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT ------------------------------------------------------------->
+  <section id="contact" class="sec" aria-labelledby="contact-title">
+    <div class="wrap contact-grid">
+      <div>
+        <h2 id="contact-title">Hiring for a senior engineering role?</h2>
+        <p class="lede" style="margin-top:16px">I am open to senior roles working on SaaS platforms, infrastructure or applied AI. Email is the fastest way to reach me.</p>
+        <div class="direct">
+          <div class="direct-row"><i class="ph ph-envelope-simple i" aria-hidden="true"></i><a href="mailto:rameshwar.kes@gmail.com">rameshwar.kes@gmail.com</a>
+            <button class="icon-btn copy" type="button" id="copyEmail"><i class="ph ph-copy i" aria-hidden="true"></i><span id="copyLabel">Copy</span></button></div>
+          <div class="direct-row"><i class="ph ph-github-logo i" aria-hidden="true"></i><a href="https://github.com/rameshwarTiwari1">github.com/rameshwarTiwari1</a></div>
+          <div class="direct-row"><i class="ph ph-linkedin-logo i" aria-hidden="true"></i><a href="https://www.linkedin.com/in/rameshwar-tiwari-b259401ba/">LinkedIn</a></div>
+          <div class="direct-row"><i class="ph ph-file-arrow-down i" aria-hidden="true"></i><a href="/rameshwar-tiwari-resume.pdf">Download résumé (PDF)</a></div>
+        </div>
+      </div>
+
+      <form class="form" id="contactForm" novalidate>
+        <div class="field">
+          <label for="f-name">Your name</label>
+          <input id="f-name" name="name" autocomplete="name" required aria-describedby="e-name">
+          <p class="err" id="e-name" role="alert"></p>
+        </div>
+        <div class="field">
+          <label for="f-email">Work email</label>
+          <input id="f-email" name="email" type="email" autocomplete="email" required aria-describedby="e-email" placeholder="you@company.com">
+          <p class="err" id="e-email" role="alert"></p>
+        </div>
+        <div class="field">
+          <label for="f-msg">What is the role or the problem?</label>
+          <textarea id="f-msg" name="message" required aria-describedby="e-msg"></textarea>
+          <p class="err" id="e-msg" role="alert"></p>
+        </div>
+        <div class="form-foot">
+          <button class="btn btn-primary" type="submit" id="sendBtn"><i class="ph ph-paper-plane-tilt i" aria-hidden="true"></i><span>Send message</span></button>
+          <p class="form-status" id="formStatus" aria-live="polite"></p>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <div class="wrap">
+      <span>Rameshwar Tiwari. Built with Next.js, statically generated.</span>
+      <span>Press <kbd>Ctrl K</kbd> anywhere to jump.</span>
+    </div>
+  </footer>
+</main>
+
+<div class="status" role="contentinfo" aria-label="Status bar">
+  <span><i class="ph ph-git-branch i" aria-hidden="true"></i>main</span>
+  <span><i class="ph ph-check-circle i" aria-hidden="true"></i>Open to senior engineering roles</span>
+  <div class="right">
+    <span class="mono wide" id="lnCol">Ln 1, Col 1</span>
+    <span class="wide" id="lang">TypeScript JSX</span>
+    <span class="wide">UTF-8</span>
+    <span class="wide"><i class="ph ph-map-pin i" aria-hidden="true"></i>Mumbai, IST</span>
+  </div>
+</div>
+
+<div class="palette-scrim" id="scrim">
+  <div class="palette" role="dialog" aria-modal="true" aria-label="Command palette">
+    <label for="palInput" class="sr-only">Search sections and projects</label>
+    <input id="palInput" placeholder="Go to a section, project or article" autocomplete="off" role="combobox" aria-expanded="true" aria-controls="palList">
+    <ul id="palList" role="listbox"></ul>
+  </div>
+</div>
+
+<script>
+(() => {
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* ---------------- data (mirrors /content) ---------------- */
+  const STUDIES = [
+    { slug: "vashix", title: "Vashix", live: "https://vashix.com", role: "Solo architect and engineer", period: "2025 to now",
+      tagline: "Hardware-signs photo and video at the moment of capture, so an image can prove who took it, where, when, and that nobody has touched it since.",
+      summary: "Photos are now trivially generated and trivially edited, which makes \"is this real?\" a question no viewer can answer by looking. Vashix moves the proof to the moment of capture, signing on-device against C2PA 2.1 and scoring how far that signature can be trusted.",
+      results: ["A 0 to 100 Trust Score engine that has to be defensible, not merely plausible", "Signing verified against the C2PA 2.1 provenance standard", "Multi-tenant from day one: teams, roles and API keys"],
+      stack: ["TypeScript", "Next.js", "Node.js", "PostgreSQL", "Prisma", "AndroidSDK", "C2PA", "S3", "Redis"] },
+    { slug: "multi-tenant-enterprise-crm", title: "Multi-Tenant Enterprise CRM", role: "Lead architect and engineer", period: "Feb 2025 to now",
+      tagline: "Five production modules on one codebase, serving several enterprise clients from a shared deployment, with tenant isolation enforced by the database.",
+      summary: "Built from an empty repository to five modules in production across multiple enterprise accounts. The interesting work was not the features. It was making cross-tenant data access structurally impossible rather than merely unlikely.",
+      results: ["5 production modules: leads, KPIs, projects, attendance, payroll", "Roughly 40% faster perceived response after moving work onto queues", "Deployed to multiple enterprise client accounts"],
+      stack: ["TypeScript", "Next.js", "React", "Node.js", "Prisma", "MySQL", "Redis", "BullMQ", "AWS"] },
+    { slug: "courier-hub", title: "Courier Hub", role: "Backend and integrations engineer", period: "2025",
+      tagline: "An e-commerce logistics platform that turns several shipping carriers, each with its own API and its own idea of an order, into one interface.",
+      summary: "Order processing, invoicing and multi-account shipping across carriers whose APIs agree on almost nothing. The real problem was one domain model that survives every carrier's version of the truth.",
+      results: ["One integration layer across several carriers and accounts", "Idempotent, retry-safe operations end to end", "Reporting built in rather than bolted on"],
+      stack: ["TypeScript", "Node.js", "Next.js", "MySQL", "Prisma", "Redis", "BullMQ", "S3"] },
+    { slug: "realtime-task-platform", title: "Real-Time Task Platform", role: "Full-stack engineer", period: "2024",
+      tagline: "A collaborative task system where people editing the same board see each other's changes immediately, and still converge when the network does not cooperate.",
+      summary: "Socket.io collaboration with role-based access, built around the question that makes real-time hard: not how to push an update, but what to do when two updates disagree.",
+      results: ["Multi-user sync that converges after dropped connections", "Role-based access scoped per board"],
+      stack: ["React", "Node.js", "SocketIO", "MongoDB", "Express", "JWT"] },
+  ];
+
+  /* ---------------- theme ---------------- */
+  const root = document.documentElement;
+  const themeBtn = $("#themeBtn");
+  function paintThemeBtn() {
+    const dark = root.dataset.theme === "dark";
+    themeBtn.setAttribute("aria-label", dark ? "Switch to light theme" : "Switch to dark theme");
+    $("#themeLabel").textContent = dark ? "Light" : "Dark";
+    themeBtn.querySelector(".ph").className = "ph " + (dark ? "ph-sun" : "ph-moon") + " i";
+  }
+  function setTheme(t) {
+    root.dataset.theme = t;
+    try { localStorage.setItem("rt-theme", t); } catch (e) {}
+    paintThemeBtn();
+  }
+  themeBtn.addEventListener("click", () => setTheme(root.dataset.theme === "dark" ? "light" : "dark"));
+  paintThemeBtn();
+
+  /* ---------------- work explorer ---------------- */
+  const files = $("#files"), preview = $("#preview");
+  files.innerHTML = STUDIES.map((s, i) => `
+    <li role="presentation"><button class="file" role="tab" id="tab-${s.slug}" aria-controls="preview"
+      aria-selected="${i === 0}" tabindex="${i === 0 ? 0 : -1}" data-slug="${s.slug}">
+      <i class="ph ph-file-text i" aria-hidden="true"></i>${s.slug}${s.live ? '<span class="badge">live</span>' : ""}
+    </button></li>`).join("");
+
+  function selectStudy(slug, focus) {
+    const s = STUDIES.find(x => x.slug === slug); if (!s) return;
+    $$(".file", files).forEach(b => {
+      const on = b.dataset.slug === slug;
+      b.setAttribute("aria-selected", on); b.tabIndex = on ? 0 : -1;
+      if (on && focus) b.focus();
+    });
+    preview.setAttribute("aria-labelledby", "tab-" + slug);
+    preview.innerHTML = `<div class="preview-inner">
+      <div class="path">case-studies <i class="ph ph-caret-right" aria-hidden="true"></i> ${s.slug} <i class="ph ph-caret-right" aria-hidden="true"></i> <b>index.mdoc</b></div>
+      <h3>${s.title}</h3>
+      <p class="tagline">${s.tagline}</p>
+      <div class="meta">
+        <div>Role<b>${s.role}</b></div>
+        <div>Period<b>${s.period}</b></div>
+        ${s.live ? `<div>Live<b><a class="link" href="${s.live}">${s.live.replace("https://", "")}</a></b></div>` : ""}
+      </div>
+      <p class="summary">${s.summary}</p>
+      <ul class="results">${s.results.map(r => `<li><i class="ph ph-arrow-elbow-down-right i" aria-hidden="true"></i><span>${r}</span></li>`).join("")}</ul>
+      <div class="imports" aria-label="Stack: ${s.stack.join(", ")}"><span class="k">import</span> { ${s.stack.join(", ")} } <span class="k">from</span> <span class="s">"stack"</span>;</div>
+      <div class="preview-actions">
+        <a class="btn btn-primary" href="/work/${s.slug}">Read the case study</a>
+      </div>
+    </div>`;
+  }
+  files.addEventListener("click", e => { const b = e.target.closest(".file"); if (b) selectStudy(b.dataset.slug); });
+  files.addEventListener("keydown", e => {
+    const list = $$(".file", files), i = list.indexOf(document.activeElement);
+    if (i < 0) return;
+    let n = null;
+    if (e.key === "ArrowDown") n = (i + 1) % list.length;
+    if (e.key === "ArrowUp") n = (i - 1 + list.length) % list.length;
+    if (e.key === "Home") n = 0; if (e.key === "End") n = list.length - 1;
+    if (n !== null) { e.preventDefault(); selectStudy(list[n].dataset.slug, true); }
+  });
+  selectStudy(STUDIES[0].slug);
+  $$("[data-study]").forEach(a => a.addEventListener("click", () => selectStudy(a.dataset.study)));
+
+  /* ---------------- tabs follow scroll ---------------- */
+  const LANG = { home: "TypeScript JSX", work: "Markdoc", experience: "Git Log", stack: "TypeScript", writing: "Markdown", about: "Markdown", contact: "Shell Script" };
+  const sections = $$("main section[id]");
+  function activate(id) {
+    $$(".tab").forEach(t => t.setAttribute("aria-current", t.dataset.tab === id));
+    $$(".activity [data-act]").forEach(t => t.setAttribute("aria-current", t.dataset.act === id));
+    $("#lang").textContent = LANG[id] || "";
+    const tab = $(`.tab[data-tab="${id}"]`);
+    if (tab) { const strip = tab.parentElement; const l = tab.offsetLeft - 24; if (l < strip.scrollLeft || tab.offsetLeft + tab.offsetWidth > strip.scrollLeft + strip.clientWidth) strip.scrollTo({ left: l, behavior: reduce ? "auto" : "smooth" }); }
+  }
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(en => { if (en.isIntersecting) activate(en.target.id); });
+  }, { rootMargin: "-35% 0px -60% 0px" });
+  sections.forEach(s => io.observe(s));
+  activate("home");
+
+  /* ---------------- gutter + Ln counter ---------------- */
+  const gutter = $("#gutter"), main = $("#main"), lnCol = $("#lnCol");
+  const LH = 28;
+  function paintGutter() {
+    const n = Math.ceil(main.scrollHeight / LH);
+    let s = ""; for (let i = 1; i <= n; i++) s += i + "\n";
+    gutter.textContent = s;
+  }
+  new ResizeObserver(paintGutter).observe(main);
+  let ticking = false;
+  addEventListener("scroll", () => {
+    if (ticking) return; ticking = true;
+    requestAnimationFrame(() => { lnCol.textContent = `Ln ${Math.max(1, Math.round(scrollY / LH) + 1)}, Col 1`; ticking = false; });
+  }, { passive: true });
+
+  /* ---------------- terminal ---------------- */
+  const body = $("#termBody"), log = $("#termLog"), form = $("#termForm"), input = $("#termInput");
+  const esc = s => s.replace(/[&<>]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
+  const scrollDown = () => { body.scrollTop = body.scrollHeight; };
+  const add = (html, cls) => { const d = document.createElement("div"); if (cls) d.className = cls; d.innerHTML = html; log.appendChild(d); scrollDown(); return d; };
+  const go = id => { const el = document.getElementById(id); if (el) el.scrollIntoView({ behavior: reduce ? "auto" : "smooth" }); };
+
+  const CMDS = {
+    help: () => `<span class="k">whoami</span>      who I am, briefly
+<span class="k">ls work</span>     list case studies
+<span class="k">cat</span> <span class="s">&lt;slug&gt;</span>  open a case study
+<span class="k">git log</span>     experience, newest first
+<span class="k">stack</span>       what I reach for
+<span class="k">writing</span>     recent articles
+<span class="k">contact</span>     how to reach me
+<span class="k">theme</span>       toggle light / dark
+<span class="k">clear</span>       clear the session`,
+    whoami: () => `Full-stack engineer in Mumbai. I spend most of my time on the parts of a product that are hard to change later: data models, tenancy boundaries, and the infrastructure underneath.`,
+    "ls work": () => STUDIES.map(s => `<span class="s">${s.slug}/</span>${s.live ? '  <span class="c">live</span>' : ""}`).join("\n") + `\n<span class="c">open one with: cat ${STUDIES[0].slug}</span>`,
+    "git log": () => { go("experience"); return `<span class="k">*</span> <span class="n">Feb 2025</span>  Software Engineer, AdsCult <span class="k">(HEAD)</span>
+<span class="k">*</span> <span class="n">Jan 2024</span>  Full Stack Developer Intern, Prabhavti
+<span class="k">*</span> <span class="n">Aug 2023</span>  Web Developer Intern, Webriver`; },
+    stack: () => { go("stack"); return `<span class="pn">core</span>          TypeScript, React, Next.js, Node.js, Prisma
+<span class="pn">ai</span>            RAG, Pinecone, pgvector, LLM APIs
+<span class="pn">cloud</span>         AWS (EC2, RDS, S3, SQS), Docker, Nginx
+<span class="pn">architecture</span>  Multi-tenant SaaS, PostgreSQL, Redis, BullMQ`; },
+    writing: () => { go("writing"); return `Row-Level Security is the tenant isolation you actually want
+What actually belongs on a queue
+When you do not need a vector database`; },
+    contact: () => { go("contact"); return `email     <a href="mailto:rameshwar.kes@gmail.com">rameshwar.kes@gmail.com</a>
+github    <a href="https://github.com/rameshwarTiwari1">rameshwarTiwari1</a>
+resume    <a href="/rameshwar-tiwari-resume.pdf">rameshwar-tiwari-resume.pdf</a>`; },
+    theme: () => { setTheme(root.dataset.theme === "dark" ? "light" : "dark"); return `Theme set to ${root.dataset.theme}.`; },
+    "sudo hire": () => `<span class="s">Permission granted.</span> Next step: <a href="mailto:rameshwar.kes@gmail.com">rameshwar.kes@gmail.com</a>`,
+  };
+  CMDS.ls = CMDS["ls work"]; CMDS.experience = CMDS["git log"]; CMDS.about = CMDS.whoami; CMDS.work = CMDS["ls work"];
+  CMDS["sudo hire-me"] = CMDS["sudo hire"];
+
+  function run(raw) {
+    const cmd = raw.trim().replace(/\s+/g, " ");
+    if (!cmd) return;
+    add(esc(cmd), "u");
+    const lower = cmd.toLowerCase();
+    if (lower === "clear") { log.innerHTML = ""; return; }
+    let out;
+    const m = lower.match(/^(cat|open)\s+(.+?)\/?$/);
+    if (m) {
+      const s = STUDIES.find(x => x.slug === m[2] || x.slug.startsWith(m[2]));
+      if (s) { selectStudy(s.slug); go("work"); out = `<span class="ans">${s.title}</span>\n${s.summary}\n<span class="c">Opened in work/ above.</span>`; }
+      else out = `No case study called "${esc(m[2])}". Run <span class="k">ls work</span> to see the four that exist.`;
+    } else if (CMDS[lower]) out = CMDS[lower]();
+    else out = `Command not found: ${esc(cmd)}. Type <span class="k">help</span> for the list.`;
+    add(`<div style="white-space:pre-wrap">${out}</div>`, "out dot");
+  }
+
+  const history = []; let hIdx = -1;
+  form.addEventListener("submit", e => { e.preventDefault(); finishIntro(); const v = input.value; if (v.trim()) history.unshift(v); hIdx = -1; run(v); input.value = ""; });
+  input.addEventListener("keydown", e => {
+    if (e.key === "ArrowUp" && history.length) { e.preventDefault(); hIdx = Math.min(hIdx + 1, history.length - 1); input.value = history[hIdx]; }
+    if (e.key === "ArrowDown") { e.preventDefault(); hIdx = Math.max(hIdx - 1, -1); input.value = hIdx < 0 ? "" : history[hIdx]; }
+    if (e.key === "Tab" && input.value) {
+      const pool = [...Object.keys(CMDS), "clear", ...STUDIES.map(s => "cat " + s.slug)];
+      const hit = pool.find(c => c.startsWith(input.value.toLowerCase()));
+      if (hit) { e.preventDefault(); input.value = hit; }
+    }
+    if (e.key === "Escape") finishIntro();
+  });
+  body.addEventListener("click", e => { if (!e.target.closest("a,button")) input.focus({ preventScroll: true }); });
+  $$("[data-cmd]").forEach(b => b.addEventListener("click", () => { finishIntro(); run(b.dataset.cmd); input.focus({ preventScroll: true }); }));
+
+  /* The one authored moment: a Claude Code session answering "who is this?" */
+  const INTRO_Q = "who is rameshwar, in one paragraph?";
+  const INTRO_A = "Full-stack engineer in Mumbai who works on the parts of a product that are expensive to change later. He designed a multi-tenant CRM where tenant isolation is enforced by the database, runs his own AWS infrastructure, and is building Vashix, a C2PA media verification platform, end to end. Type help to look around.";
+  let introDone = false, introTimers = [];
+  const wait = ms => new Promise(r => introTimers.push(setTimeout(r, ms)));
+  function renderIntroStatic() {
+    log.innerHTML = "";
+    add(esc(INTRO_Q), "u");
+    add(`<b>Read</b>(content/about.mdoc)`, "out dot tool");
+    add(`⎿  Read 48 lines`, "tool-res");
+    add(`<span class="ans">${INTRO_A}</span>`, "out dot");
+  }
+  function finishIntro() {
+    if (introDone) return; introDone = true;
+    introTimers.forEach(clearTimeout); renderIntroStatic();
+  }
+  async function playIntro() {
+    if (reduce) { finishIntro(); return; }
+    await wait(700);
+    const q = add("", "u");
+    for (const ch of INTRO_Q) { if (introDone) return; q.textContent += ch; await wait(26 + Math.random() * 30); }
+    await wait(260);
+    const frames = ["·", "✢", "✳", "✶", "✻", "✽", "✻", "✶", "✳", "✢"];
+    const sp = add("", "spin"); let f = 0;
+    const words = ["Reading", "Reading", "Thinking"];
+    for (let i = 0; i < 16; i++) { if (introDone) return; sp.innerHTML = `${frames[f++ % frames.length]} <span class="w">${words[Math.floor(i / 6)]}… (esc to interrupt)</span>`; await wait(90); }
+    sp.remove();
+    add(`<b>Read</b>(content/about.mdoc)`, "out dot tool");
+    add(`⎿  Read 48 lines`, "tool-res");
+    await wait(320);
+    const a = add(`<span class="ans"></span>`, "out dot").firstChild;
+    for (const w of INTRO_A.split(" ")) { if (introDone) return; a.textContent += (a.textContent ? " " : "") + w; scrollDown(); await wait(28 + Math.random() * 30); }
+    introDone = true;
+  }
+  playIntro();
+
+  /* ---------------- command palette ---------------- */
+  const scrim = $("#scrim"), palInput = $("#palInput"), palList = $("#palList");
+  const ITEMS = [
+    ...[["home", "Home", "ph-house"], ["work", "Work", "ph-folder-simple"], ["experience", "Experience", "ph-git-branch"], ["stack", "Stack", "ph-stack"], ["writing", "Writing", "ph-book-open-text"], ["about", "About", "ph-user"], ["contact", "Contact", "ph-envelope-simple"]]
+      .map(([id, label, icon]) => ({ label, icon, hint: "section", act: () => go(id) })),
+    ...STUDIES.map(s => ({ label: s.title, icon: "ph-file-text", hint: "case study", act: () => { selectStudy(s.slug); go("work"); } })),
+    { label: "Toggle theme", icon: "ph-circle-half", hint: "command", act: () => setTheme(root.dataset.theme === "dark" ? "light" : "dark") },
+    { label: "Copy email address", icon: "ph-copy", hint: "command", act: () => copyEmail() },
+  ];
+  let palSel = 0, palShown = [], lastFocus = null;
+  function paintPal() {
+    const q = palInput.value.trim().toLowerCase();
+    palShown = ITEMS.filter(i => i.label.toLowerCase().includes(q));
+    palSel = Math.min(palSel, Math.max(0, palShown.length - 1));
+    palList.innerHTML = palShown.length ? palShown.map((it, i) => `<li role="option" id="opt-${i}" aria-selected="${i === palSel}" data-i="${i}"><i class="ph ${it.icon} i" aria-hidden="true"></i>${it.label}<small>${it.hint}</small></li>`).join("")
+      : `<li class="empty" role="presentation">Nothing matches "${esc(q)}". Try a section name like "work".</li>`;
+    palInput.setAttribute("aria-activedescendant", palShown.length ? "opt-" + palSel : "");
+  }
+  function openPal() { lastFocus = document.activeElement; scrim.classList.add("open"); palInput.value = ""; palSel = 0; paintPal(); palInput.focus(); }
+  function closePal() { scrim.classList.remove("open"); if (lastFocus) lastFocus.focus({ preventScroll: true }); }
+  function choose(i) { const it = palShown[i]; if (!it) return; closePal(); it.act(); }
+  $$("[data-open-palette]").forEach(b => b.addEventListener("click", openPal));
+  addEventListener("keydown", e => {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") { e.preventDefault(); scrim.classList.contains("open") ? closePal() : openPal(); }
+  });
+  palInput.addEventListener("input", () => { palSel = 0; paintPal(); });
+  palInput.addEventListener("keydown", e => {
+    if (e.key === "ArrowDown") { e.preventDefault(); palSel = (palSel + 1) % Math.max(1, palShown.length); paintPal(); }
+    if (e.key === "ArrowUp") { e.preventDefault(); palSel = (palSel - 1 + palShown.length) % Math.max(1, palShown.length); paintPal(); }
+    if (e.key === "Enter") { e.preventDefault(); choose(palSel); }
+    if (e.key === "Escape" || e.key === "Tab") { e.preventDefault(); closePal(); }
+  });
+  palList.addEventListener("click", e => { const li = e.target.closest("[data-i]"); if (li) choose(+li.dataset.i); });
+  scrim.addEventListener("click", e => { if (e.target === scrim) closePal(); });
+
+  /* ---------------- copy email ---------------- */
+  function copyEmail() {
+    const done = ok => { $("#copyLabel").textContent = ok ? "Copied" : "Copy failed"; setTimeout(() => $("#copyLabel").textContent = "Copy", 1800); };
+    try { navigator.clipboard.writeText("rameshwar.kes@gmail.com").then(() => done(true), () => done(false)); } catch (e) { done(false); }
+  }
+  $("#copyEmail").addEventListener("click", copyEmail);
+
+  /* ---------------- contact form (mock submit) ---------------- */
+  const cf = $("#contactForm");
+  const rules = {
+    "f-name":  v => v.trim() ? "" : "Add your name so I know who to reply to.",
+    "f-email": v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()) ? "" : "Enter an email address like you@company.com.",
+    "f-msg":   v => v.trim().length >= 20 ? "" : "Add a sentence or two about the role or the problem (20 characters minimum).",
+  };
+  function check(id) {
+    const el = $("#" + id), msg = rules[id](el.value), err = $("#" + el.getAttribute("aria-describedby"));
+    err.innerHTML = msg ? `<i class="ph ph-warning-circle" aria-hidden="true"></i>${msg}` : "";
+    el.setAttribute("aria-invalid", !!msg);
+    return !msg;
+  }
+  Object.keys(rules).forEach(id => $("#" + id).addEventListener("blur", e => { if (e.target.value) check(id); }));
+  cf.addEventListener("submit", e => {
+    e.preventDefault();
+    const bad = Object.keys(rules).filter(id => !check(id));
+    if (bad.length) { $("#" + bad[0]).focus(); return; }
+    const btn = $("#sendBtn"); btn.disabled = true; btn.querySelector("span").textContent = "Sending…";
+    $("#formStatus").textContent = "";
+    setTimeout(() => {
+      btn.disabled = false; btn.querySelector("span").textContent = "Send message";
+      $("#formStatus").textContent = "Message sent. I will reply from rameshwar.kes@gmail.com.";
+      cf.reset(); Object.keys(rules).forEach(id => $("#" + id).removeAttribute("aria-invalid"));
+    }, 1100);
+  });
+})();
+</script>
+</body>
+</html>

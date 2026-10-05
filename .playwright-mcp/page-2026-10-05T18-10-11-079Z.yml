@@ -1,0 +1,305 @@
+- generic [active] [ref=f1e1]:
+  - link "Skip to content" [ref=f1e2] [cursor=pointer]:
+    - /url: "#main"
+  - banner [ref=f1e3]:
+    - generic [ref=f1e4]:
+      - link "Rameshwar Tiwari, home" [ref=f1e5] [cursor=pointer]:
+        - /url: "#home"
+        - generic [aria-hidden] [ref=f1e6]: rt
+        - generic [ref=f1e7]: Rameshwar Tiwari
+      - text: 
+      - generic [ref=f1e11]:
+        - button "Switch to dark theme" [ref=f1e12] [cursor=pointer]: 
+        - link [ref=f1e268] [cursor=pointer]:
+          - /url: /rameshwar-tiwari-resume.pdf
+          - text: 
+    - navigation "Sections" [ref=f1e16]:
+      - link "home.tsx" [ref=f1e17] [cursor=pointer]:
+        - /url: "#home"
+        - text:  home.tsx
+      - link "work/" [ref=f1e18] [cursor=pointer]:
+        - /url: "#work"
+        - text:  work/
+      - link "experience.log" [ref=f1e19] [cursor=pointer]:
+        - /url: "#experience"
+        - text:  experience.log
+      - link "stack.ts" [ref=f1e20] [cursor=pointer]:
+        - /url: "#stack"
+        - text:  stack.ts
+      - link "writing.md" [ref=f1e21] [cursor=pointer]:
+        - /url: "#writing"
+        - text:  writing.md
+      - link "about.md" [ref=f1e22] [cursor=pointer]:
+        - /url: "#about"
+        - text:  about.md
+      - link "contact.sh" [ref=f1e23] [cursor=pointer]:
+        - /url: "#contact"
+        - text:  contact.sh
+  - text:      
+  - main [ref=f1e38]:
+    - region [ref=f1e39]:
+      - generic [ref=f1e40]:
+        - generic [ref=f1e41]:
+          - generic [ref=f1e43]:
+            - strong [ref=f1e44]: Rameshwar Tiwari
+            - text: Full-stack engineer in Mumbai, AI and GenAI
+          - heading [level=1] [ref=f1e45]:
+            - text: I build multi-tenant systems that
+            - emphasis [ref=f1e46]: hold up in production.
+          - paragraph [ref=f1e47]: Scalable SaaS architecture, AWS infrastructure and AI-integrated products. Currently building a media verification platform end to end.
+          - generic [ref=f1e48]:
+            - link "Read the case studies" [ref=f1e49] [cursor=pointer]:
+              - /url: "#work"
+            - link "Get in touch" [ref=f1e50] [cursor=pointer]:
+              - /url: "#contact"
+        - region "Interactive terminal" [ref=f1e51]:
+          - generic [ref=f1e52]:
+            - generic [ref=f1e53]:  claude
+            - generic [ref=f1e54]: zsh
+            - generic [ref=f1e55]: ~/rameshwar
+          - generic [ref=f1e56]:
+            - generic [ref=f1e57]:
+              - text: ✻ Welcome to rameshwar's portfolio
+              - generic [ref=f1e58]: "Type help for commands. cwd: ~/rameshwar"
+            - generic [ref=f1e269]:
+              - generic [ref=f1e270]: "> who is rameshwar, in one paragraph?"
+              - generic [ref=f1e271]: ⏺ Read(content/about.mdoc)
+              - generic [ref=f1e272]: ⎿ Read 48 lines
+              - generic [ref=f1e273]: ⏺ Full-stack engineer in Mumbai who works on the parts of a product that are expensive to change later. He designed a multi-tenant CRM where tenant isolation is enforced by the database, runs his own AWS infrastructure, and is building Vashix, a C2PA media verification platform, end to end. Type help to look around.
+            - generic [ref=f1e59]:
+              - generic [aria-hidden] [ref=f1e60]: ">"
+              - generic [ref=f1e61]: Terminal command
+              - textbox "Terminal command" [ref=f1e62]:
+                - /placeholder: "Try: ls work"
+            - generic [ref=f1e63]:
+              - text: Try
+              - button "ls work" [ref=f1e64] [cursor=pointer]
+              - text: ","
+              - button "cat vashix" [ref=f1e65] [cursor=pointer]
+              - text: ","
+              - button "stack" [ref=f1e66] [cursor=pointer]
+              - text: ","
+              - button "contact" [ref=f1e67] [cursor=pointer]
+    - region [ref=f1e68]:
+      - generic [ref=f1e69]:
+        - generic [ref=f1e70]:
+          - heading "Systems I designed and still answer for." [level=2] [ref=f1e71]
+          - paragraph [ref=f1e72]: "Each case study follows the same order: the problem, the architecture, what I built, what went wrong, and what it produced."
+        - generic [ref=f1e73]:
+          - generic [ref=f1e74]:
+            - generic [ref=f1e75]: explorer
+            - generic [ref=f1e76]:   case-studies
+            - tablist "Case studies" [ref=f1e77]:
+              - tab "vashix live" [selected] [ref=f1e78] [cursor=pointer]:
+                - text:  vashix
+                - generic [ref=f1e79]: live
+              - tab "multi-tenant-enterprise-crm" [ref=f1e80] [cursor=pointer]:  multi-tenant-enterprise-crm
+              - tab "courier-hub" [ref=f1e81] [cursor=pointer]:  courier-hub
+              - tab "realtime-task-platform" [ref=f1e82] [cursor=pointer]:  realtime-task-platform
+            - generic [aria-hidden] [ref=f1e83]:
+              - generic [ref=f1e84]: outline
+              - list [ref=f1e85]:
+                - listitem [ref=f1e86]: Problem
+                - listitem [ref=f1e87]: Architecture
+                - listitem [ref=f1e88]: Solution
+                - listitem [ref=f1e89]: Challenges
+                - listitem [ref=f1e90]: Outcome
+          - tabpanel "vashix live" [ref=f1e91]:
+            - generic [ref=f1e92]:
+              - generic [ref=f1e93]:
+                - text: case-studies
+                - generic [aria-hidden] [ref=f1e94]: 
+                - text: vashix
+                - generic [aria-hidden] [ref=f1e95]: 
+                - generic [ref=f1e96]: index.mdoc
+              - heading "Vashix" [level=3] [ref=f1e97]
+              - paragraph [ref=f1e98]: Hardware-signs photo and video at the moment of capture, so an image can prove who took it, where, when, and that nobody has touched it since.
+              - generic [ref=f1e99]:
+                - generic [ref=f1e100]:
+                  - text: Role
+                  - generic [ref=f1e101]: Solo architect and engineer
+                - generic [ref=f1e102]:
+                  - text: Period
+                  - generic [ref=f1e103]: 2025 to now
+                - generic [ref=f1e104]:
+                  - text: Live
+                  - link "vashix.com" [ref=f1e106] [cursor=pointer]:
+                    - /url: https://vashix.com
+              - paragraph [ref=f1e107]: Photos are now trivially generated and trivially edited, which makes "is this real?" a question no viewer can answer by looking. Vashix moves the proof to the moment of capture, signing on-device against C2PA 2.1 and scoring how far that signature can be trusted.
+              - list [ref=f1e108]:
+                - listitem [ref=f1e109]:
+                  - generic [aria-hidden] [ref=f1e110]: 
+                  - generic [ref=f1e111]: A 0 to 100 Trust Score engine that has to be defensible, not merely plausible
+                - listitem [ref=f1e112]:
+                  - generic [aria-hidden] [ref=f1e113]: 
+                  - generic [ref=f1e114]: Signing verified against the C2PA 2.1 provenance standard
+                - listitem [ref=f1e115]:
+                  - generic [aria-hidden] [ref=f1e116]: 
+                  - generic [ref=f1e117]: "Multi-tenant from day one: teams, roles and API keys"
+              - 'generic "Stack: TypeScript, Next.js, Node.js, PostgreSQL, Prisma, AndroidSDK, C2PA, S3, Redis" [ref=f1e118]': "import { TypeScript, Next.js, Node.js, PostgreSQL, Prisma, AndroidSDK, C2PA, S3, Redis } from \"stack\";"
+              - link "Read the case study" [ref=f1e120] [cursor=pointer]:
+                - /url: /work/vashix
+    - region [ref=f1e121]:
+      - generic [ref=f1e122]:
+        - heading "Three roles, newest first." [level=2] [ref=f1e124]
+        - list [ref=f1e125]:
+          - listitem [ref=f1e126]:
+            - generic [ref=f1e127]:
+              - text: Feb 2025 to now
+              - generic [ref=f1e128]: HEAD → adscult
+            - heading "Software Engineer" [level=3] [ref=f1e129]
+            - paragraph [ref=f1e130]: AdsCult Private Limited, Mumbai
+            - list [ref=f1e131]:
+              - listitem [ref=f1e132]:
+                - text: "+ Architected and delivered a multi-tenant enterprise CRM from scratch across five modules: lead management, KPI tracking, project management, attendance and payroll."
+                - link "Case study" [ref=f1e133] [cursor=pointer]:
+                  - /url: "#work"
+              - listitem [ref=f1e134]: + Designed the tenancy model so isolation is enforced at the database layer rather than in application code, making cross-tenant access structurally impossible instead of merely unlikely.
+              - listitem [ref=f1e135]:
+                - text: + Built Courier Hub, an e-commerce logistics platform handling order processing, invoicing and multi-account shipping.
+                - link "Case study" [ref=f1e136] [cursor=pointer]:
+                  - /url: "#work"
+              - listitem [ref=f1e137]: + Moved slow synchronous work onto BullMQ and Redis, improving perceived responsiveness by roughly 40%, and automated recurring SEO workflows with n8n.
+              - listitem [ref=f1e138]: + Provisioned and operated the AWS footprint (EC2, RDS, S3, SQS, Amplify) behind Nginx, and implemented RAG retrieval over Pinecone and pgvector.
+          - listitem [ref=f1e139]:
+            - generic [ref=f1e140]: Jan 2024 to Jun 2024
+            - heading "Full Stack Developer Intern" [level=3] [ref=f1e141]
+            - paragraph [ref=f1e142]: Prabhavti Digital Services, Mumbai
+            - list [ref=f1e143]:
+              - listitem [ref=f1e144]: + Built MERN applications and added automated tests around authentication flows, which cut production bugs by about 30%.
+              - listitem [ref=f1e145]: + Integrated payment gateway APIs and validated the full transaction lifecycle before release.
+              - listitem [ref=f1e146]: + Improved React performance with lazy loading, code splitting and Redux Toolkit.
+          - listitem [ref=f1e147]:
+            - generic [ref=f1e148]: Aug 2023 to Dec 2023
+            - heading "Web Developer Intern" [level=3] [ref=f1e149]
+            - paragraph [ref=f1e150]: Webriver Solutions, Mumbai
+            - list [ref=f1e151]:
+              - listitem [ref=f1e152]: + Developed responsive, mobile-first web applications with HTML, CSS, JavaScript and PHP.
+              - listitem [ref=f1e153]: + Wrote automated QA scripts and reworked UI flows based on user feedback rather than assumption.
+          - listitem [ref=f1e154]:
+            - generic [ref=f1e155]: 2020 to 2023
+            - heading "BSc in Information Technology" [level=3] [ref=f1e156]
+            - paragraph [ref=f1e157]: KES Shroff College, Mumbai. CGPA 9.0 and the Best Project Award.
+    - region [ref=f1e158]:
+      - generic [ref=f1e159]:
+        - heading "What I reach for, and why." [level=2] [ref=f1e161]
+        - generic [ref=f1e162]:
+          - generic [ref=f1e163]:
+            - generic [ref=f1e164]: // The everyday stack. TypeScript end to end, Prisma against SQL, // and Next.js for anything that needs to render fast and rank.
+            - text: export const core = [ "TypeScript", "React", "Next.js", "Node.js", "Express.js", "Prisma ORM", "REST APIs", "SQL", ] as const;
+          - generic [ref=f1e165]:
+            - generic [ref=f1e166]: // Retrieval built into real products, including deciding when a plain // SQL query beats a vector search. More often than the hype suggests.
+            - text: export const ai = [ "RAG architecture", "Pinecone", "pgvector", "Semantic search", "LLM API integration", "Claude Code", ] as const;
+          - generic [ref=f1e167]:
+            - generic [ref=f1e168]: // Infrastructure I provision and operate myself, not just deploy onto. // Nginx in front, CI/CD behind, observability so failures page someone.
+            - text: export const cloud = [ "AWS EC2", "RDS", "S3", "SQS", "Amplify", "Docker", "Nginx", "CI/CD", ] as const;
+          - generic [ref=f1e169]:
+            - generic [ref=f1e170]: "// The decisions that are expensive to reverse: tenancy boundaries, // access control, where the queue sits, which database is right."
+            - text: export const architecture = [ "Multi-tenant SaaS", "RBAC / ABAC", "PostgreSQL", "MySQL", "MongoDB", "Redis", "BullMQ", "Socket.io", ] as const;
+    - region [ref=f1e171]:
+      - generic [ref=f1e172]:
+        - heading "Notes from the parts that broke." [level=2] [ref=f1e174]
+        - list [ref=f1e175]:
+          - listitem [ref=f1e176]:
+            - link "18 Aug 2026 Row-Level Security is the tenant isolation you actually want Filtering by tenant_id in application code means your security model is \"everyone remembers, every time, forever\". Postgres RLS moves the boundary under the application. PostgreSQL Multi-tenancy Security" [ref=f1e177] [cursor=pointer]:
+              - /url: /engineering/postgres-row-level-security-multi-tenant
+              - time [ref=f1e178]: 18 Aug 2026
+              - generic [ref=f1e179]:
+                - heading "Row-Level Security is the tenant isolation you actually want" [level=3] [ref=f1e180]
+                - paragraph [ref=f1e181]: Filtering by tenant_id in application code means your security model is "everyone remembers, every time, forever". Postgres RLS moves the boundary under the application.
+              - generic [ref=f1e182]:
+                - generic [ref=f1e183]: PostgreSQL
+                - generic [ref=f1e184]: Multi-tenancy
+                - generic [ref=f1e185]: Security
+          - listitem [ref=f1e186]:
+            - link "22 Jul 2026 What actually belongs on a queue Moving work to BullMQ made our API roughly 40% more responsive. It also introduced failure modes that did not exist before. The rule I use now, and what it costs. Node.js Redis BullMQ" [ref=f1e187] [cursor=pointer]:
+              - /url: /engineering/bullmq-redis-background-jobs
+              - time [ref=f1e188]: 22 Jul 2026
+              - generic [ref=f1e189]:
+                - heading "What actually belongs on a queue" [level=3] [ref=f1e190]
+                - paragraph [ref=f1e191]: Moving work to BullMQ made our API roughly 40% more responsive. It also introduced failure modes that did not exist before. The rule I use now, and what it costs.
+              - generic [ref=f1e192]:
+                - generic [ref=f1e193]: Node.js
+                - generic [ref=f1e194]: Redis
+                - generic [ref=f1e195]: BullMQ
+          - listitem [ref=f1e196]:
+            - link "30 Jun 2026 When you do not need a vector database I have shipped RAG with both Pinecone and pgvector. The most useful lesson was how often semantic search was the wrong tool, and how to tell before you build it. AI RAG pgvector" [ref=f1e197] [cursor=pointer]:
+              - /url: /engineering/rag-in-production-pinecone-pgvector
+              - time [ref=f1e198]: 30 Jun 2026
+              - generic [ref=f1e199]:
+                - heading "When you do not need a vector database" [level=3] [ref=f1e200]
+                - paragraph [ref=f1e201]: I have shipped RAG with both Pinecone and pgvector. The most useful lesson was how often semantic search was the wrong tool, and how to tell before you build it.
+              - generic [ref=f1e202]:
+                - generic [ref=f1e203]: AI
+                - generic [ref=f1e204]: RAG
+                - generic [ref=f1e205]: pgvector
+    - region [ref=f1e206]:
+      - generic [ref=f1e207]:
+        - img "Rameshwar Tiwari" [ref=f1e209]
+        - generic [ref=f1e210]:
+          - heading "About" [level=2] [ref=f1e211]
+          - paragraph [ref=f1e212]:
+            - text: I care about the decisions that are
+            - emphasis [ref=f1e213]: expensive to reverse.
+          - generic [ref=f1e214]:
+            - paragraph [ref=f1e215]: Schema design, tenant isolation, where the queue boundary sits, what happens when a job fails halfway through. Those choices decide whether a system is still pleasant to work on two years later, and they are much cheaper to get right at the start than to retrofit.
+            - paragraph [ref=f1e216]:
+              - text: Outside working hours I build
+              - link "Vashix" [ref=f1e217] [cursor=pointer]:
+                - /url: https://vashix.com
+              - text: ", which hardware-signs photos and video at the moment of capture and verifies them against the C2PA 2.1 provenance standard. It is where I own an architecture end to end rather than inherit one."
+          - generic [ref=f1e218]:
+            - generic [ref=f1e219]:
+              - heading "Education" [level=3] [ref=f1e220]
+              - paragraph [ref=f1e221]: BSc in Information Technology
+              - generic [ref=f1e222]: KES Shroff College, 2020 to 2023
+            - generic [ref=f1e223]:
+              - heading "Certifications" [level=3] [ref=f1e224]
+              - paragraph [ref=f1e225]: Claude Code in Action
+              - generic [ref=f1e226]: Anthropic Education, 2026
+    - region [ref=f1e227]:
+      - generic [ref=f1e228]:
+        - generic [ref=f1e229]:
+          - heading "Hiring for a senior engineering role?" [level=2] [ref=f1e230]
+          - paragraph [ref=f1e231]: I am open to senior roles working on SaaS platforms, infrastructure or applied AI. Email is the fastest way to reach me.
+          - generic [ref=f1e232]:
+            - generic [ref=f1e233]:
+              - text: 
+              - link "rameshwar.kes@gmail.com" [ref=f1e234] [cursor=pointer]:
+                - /url: mailto:rameshwar.kes@gmail.com
+              - button "Copy" [ref=f1e235] [cursor=pointer]: 
+            - generic [ref=f1e237]:
+              - text: 
+              - link "github.com/rameshwarTiwari1" [ref=f1e238] [cursor=pointer]:
+                - /url: https://github.com/rameshwarTiwari1
+            - generic [ref=f1e239]:
+              - text: 
+              - link "LinkedIn" [ref=f1e240] [cursor=pointer]:
+                - /url: https://www.linkedin.com/in/rameshwar-tiwari-b259401ba/
+            - generic [ref=f1e241]:
+              - text: 
+              - link "Download résumé (PDF)" [ref=f1e242] [cursor=pointer]:
+                - /url: /rameshwar-tiwari-resume.pdf
+        - generic [ref=f1e243]:
+          - generic [ref=f1e244]:
+            - generic [ref=f1e245]: Your name
+            - textbox "Your name" [ref=f1e246]
+          - generic [ref=f1e247]:
+            - generic [ref=f1e248]: Work email
+            - textbox "Work email" [ref=f1e249]:
+              - /placeholder: you@company.com
+          - generic [ref=f1e250]:
+            - generic [ref=f1e251]: What is the role or the problem?
+            - textbox "What is the role or the problem?" [ref=f1e252]
+          - generic [ref=f1e253]:
+            - button "Send message" [ref=f1e254] [cursor=pointer]: 
+            - paragraph
+    - generic [ref=f1e257]:
+      - generic [ref=f1e258]: Rameshwar Tiwari. Built with Next.js, statically generated.
+      - generic [ref=f1e259]: Press Ctrl K anywhere to jump.
+  - contentinfo "Status bar" [ref=f1e260]:
+    - generic [ref=f1e261]:  main
+    - generic [ref=f1e262]:  Open to senior engineering roles
+    - generic [ref=f1e263]:
+      - generic [ref=f1e264]: Ln 1, Col 1
+      - text: 

@@ -3,14 +3,8 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { MarkdocContent } from "@/components/content/MarkdocContent";
-import { StackExplorer } from "@/components/sections/StackExplorer";
 import { ArrowUpRight, Download, Mail, MapPin } from "@/components/ui/Icons";
-import {
-  getAbout,
-  getExperience,
-  getSite,
-  getSkillGroups,
-} from "@/lib/content";
+import { getAbout, getExperience, getSite } from "@/lib/content";
 
 export const metadata: Metadata = {
   title: "About",
@@ -20,11 +14,10 @@ export const metadata: Metadata = {
 };
 
 export default async function AboutPage() {
-  const [about, site, experience, skills] = await Promise.all([
+  const [about, site, experience] = await Promise.all([
     getAbout(),
     getSite(),
     getExperience(),
-    getSkillGroups(),
   ]);
 
   const initials = site.name
@@ -246,27 +239,6 @@ export default async function AboutPage() {
         </section>
       ) : null}
 
-      {/* ================================================================ */}
-      {skills.length > 0 ? (
-        <section
-          className="section border-t border-line"
-          aria-labelledby="about-skills"
-        >
-          <div className="shell">
-            <div className="section-head section-head-split">
-              <h2 id="about-skills" className="section-title">
-                Tools and technologies
-              </h2>
-              <p className="section-lede">
-                Everything listed here is in something I have shipped, not
-                something I have read about.
-              </p>
-            </div>
-
-            <StackExplorer groups={skills} />
-          </div>
-        </section>
-      ) : null}
     </>
   );
 }

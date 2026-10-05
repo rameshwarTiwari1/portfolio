@@ -1311,6 +1311,45 @@
     }
   }
 
+  /* --- Specialty pills --------------------------------------------------- */
+  .specialties {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: clamp(2rem, 4vw, 2.75rem);
+  }
+
+  .specialty {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 2.25rem;
+    padding: 0.45rem 0.9rem;
+    border: 1px solid var(--line-signal);
+    border-radius: 99px;
+    background: var(--accent-wash);
+    font-size: var(--text-sm);
+    font-weight: 540;
+    color: var(--accent);
+    white-space: nowrap;
+    transition:
+      background-color var(--dur-fast) var(--ease-out-expo),
+      border-color var(--dur-fast) var(--ease-out-expo);
+  }
+
+  .specialty svg {
+    font-size: 0.85em;
+    opacity: 0.6;
+    transition: translate var(--dur-base) var(--ease-out-expo);
+  }
+
+  .specialty:hover {
+    background: color-mix(in oklab, var(--accent) 20%, transparent);
+    border-color: var(--accent);
+  }
+
+  .specialty:hover svg { translate: 2px 0; opacity: 1; }
+
   /* --- Proof row (replaces the generic 4-up stat template) -------------- */
   .proof {
     display: flex;
@@ -1389,8 +1428,8 @@
     width: 100%;
     /* Below this the node labels stop being readable and the canvas scrolls
        instead; above it the diagram would just inflate to fill the band. */
-    min-width: 30rem;
-    max-width: 48rem;
+    min-width: 46rem;
+    max-width: 66rem;
     height: auto;
     margin-inline: auto;
     overflow: visible;
@@ -1409,6 +1448,38 @@
   .arch-node-accent {
     fill: var(--accent-wash);
     stroke: var(--line-signal);
+  }
+
+  /* Things outside our control read quieter than things inside it. */
+  .arch-node-muted {
+    fill: transparent;
+    stroke: var(--line);
+    stroke-dasharray: 4 4;
+  }
+
+  /* Tier captions across the top. */
+  .arch-tier {
+    fill: var(--ink-faint);
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  /* The boundary is structure, not decoration — it is the claim the whole
+     diagram exists to make. */
+  .arch-boundary line {
+    stroke: var(--accent);
+    stroke-width: 1.25;
+    stroke-dasharray: 2 7;
+    opacity: 0.75;
+  }
+
+  .arch-boundary text {
+    fill: var(--accent);
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.08em;
   }
 
   .arch-text {
@@ -1434,21 +1505,38 @@
     stroke-linecap: round;
   }
 
-  .arch-wire-accent { stroke: var(--accent); }
+  .arch-wire-scoped { stroke: var(--accent); }
+
+  .arch-wire-async {
+    stroke: var(--ink-subtle);
+    stroke-dasharray: 5 5;
+  }
 
   /* Wires draw themselves once, in sequence, on first paint. */
   @media (prefers-reduced-motion: no-preference) {
-    .arch-wire {
+    .arch-wire:not(.arch-wire-async) {
       stroke-dasharray: var(--len, 200);
       stroke-dashoffset: var(--len, 200);
       animation: draw var(--dur-slower) var(--ease-out-expo) both;
-      animation-delay: calc(320ms + var(--i, 0) * 130ms);
+      animation-delay: calc(300ms + var(--i, 0) * 90ms);
+    }
+
+    /* A dashed wire cannot also animate its dash offset, so it fades. */
+    .arch-wire-async {
+      opacity: 0;
+      animation: fade-in var(--dur-slow) var(--ease-out-expo) both;
+      animation-delay: calc(420ms + var(--i, 0) * 90ms);
+    }
+
+    .arch-boundary {
+      opacity: 0;
+      animation: fade-in var(--dur-slower) var(--ease-out-expo) 900ms both;
     }
 
     .arch-node-group {
       opacity: 0;
       animation: node-in var(--dur-slow) var(--ease-out-expo) both;
-      animation-delay: calc(var(--i, 0) * 130ms);
+      animation-delay: calc(var(--i, 0) * 90ms);
     }
 
     /* A request travelling the happy path, continuously. */
@@ -1479,10 +1567,18 @@
   .arch-legend-item { display: inline-flex; align-items: center; gap: 0.4rem; }
 
   .arch-legend-swatch {
-    width: 10px;
-    height: 2px;
-    border-radius: 2px;
-    background: currentColor;
+    width: 14px;
+    height: 0;
+    border-top: 2px solid currentColor;
+  }
+
+  .arch-legend-scoped { color: var(--accent); }
+  .arch-legend-async  { color: var(--ink-subtle); border-top-style: dashed; }
+  .arch-legend-plain  { color: var(--ink-faint); }
+
+  .arch-legend-note {
+    color: var(--ink-faint);
+    font-style: italic;
   }
 }
 

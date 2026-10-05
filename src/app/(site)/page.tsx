@@ -4,17 +4,25 @@ import { ArticleRow } from "@/components/content/ArticleRow";
 import { CaseStudyCard } from "@/components/content/CaseStudyCard";
 import { ArchitectureDiagram } from "@/components/sections/ArchitectureDiagram";
 import { HeroPortrait } from "@/components/sections/HeroPortrait";
-import { StackExplorer } from "@/components/sections/StackExplorer";
 import { ArrowRight, Download } from "@/components/ui/Icons";
 import {
   getAbout,
   getArticles,
-  getExperience,
   getFeaturedCaseStudies,
   getSite,
   getSkillGroups,
 } from "@/lib/content";
 import { absoluteUrl, jsonLd } from "@/lib/site";
+
+/**
+ * The two-second layer. Without this a reader has to reverse-engineer the
+ * focus from four case studies; each pill links to the one that proves it.
+ */
+const SPECIALTIES = [
+  { label: "Multi-tenant architecture", href: "/work/multi-tenant-enterprise-crm" },
+  { label: "Async & queue systems", href: "/work/courier-hub" },
+  { label: "Applied AI / RAG", href: "/engineering/rag-in-production-pinecone-pgvector" },
+];
 
 /** Evidence, stated as claims a reader can check — not a stat template. */
 const PROOF = [
@@ -24,17 +32,17 @@ const PROOF = [
 ];
 
 export default async function HomePage() {
-  const [site, featured, articles, experience, skills, about] =
-    await Promise.all([
-      getSite(),
-      getFeaturedCaseStudies(4),
-      getArticles(),
-      getExperience(),
-      getSkillGroups(),
-      getAbout(),
-    ]);
+  // Two case studies on Home, not four. Home is the sampler; Work is the
+  // proof. `skills` still feeds the Person structured data.
+  const [site, featured, articles, skills, about] = await Promise.all([
+    getSite(),
+    getFeaturedCaseStudies(2),
+    getArticles(),
+    getSkillGroups(),
+    getAbout(),
+  ]);
 
-  const latestArticles = articles.slice(0, 3);
+  const latestArticles = articles.slice(0, 2);
   const personJsonLd = {
     "@context": "https://schema.org",
     "@type": "Person",
@@ -131,6 +139,17 @@ export default async function HomePage() {
             </div>
           </div>
 
+          <ul className="specialties">
+            {SPECIALTIES.map((item) => (
+              <li key={item.label}>
+                <Link href={item.href} className="specialty">
+                  {item.label}
+                  <ArrowRight />
+                </Link>
+              </li>
+            ))}
+          </ul>
+
           <dl className="proof">
             {PROOF.map((item) => (
               <div key={item.label} className="proof-item">
@@ -148,14 +167,15 @@ export default async function HomePage() {
       <section className="section border-t border-line" aria-labelledby="how-heading">
         <div className="shell">
           <div className="section-head section-head-split">
-            <p className="kicker">How I think</p>
+            <p className="kicker">How I build</p>
             <h2 id="how-heading" className="section-title">
-              Isolation belongs below the application, not inside it
+              Every one of these systems has the same spine
             </h2>
             <p className="section-lede">
-              Every request in the CRM resolves a tenant at the edge, and no
-              query reaches Postgres without passing the boundary that enforces
-              it. A forgotten <code>WHERE</code> clause stops being a breach.
+              A tenant resolved at the edge. Fast work served synchronously,
+              slow work handed to a queue instead of blocking the response. And
+              one enforced boundary that neither path can go around — so a
+              forgotten <code>WHERE</code> clause stops being a breach.
             </p>
           </div>
 
@@ -184,11 +204,12 @@ export default async function HomePage() {
             <div className="section-head section-head-split">
               <p className="kicker">Selected work</p>
               <h2 id="work-heading" className="section-title">
-                Four systems, covered the way an engineer would want to read them
+                Systems covered the way an engineer would want to read them
               </h2>
               <p className="section-lede">
                 Not screenshots. Each one states the problem, the architecture,
-                the trade-offs I made, and what actually shipped.
+                the trade-offs I made, and what actually shipped. Two here; all
+                four on the work page.
               </p>
             </div>
 
@@ -214,109 +235,9 @@ export default async function HomePage() {
       ) : null}
 
       {/* ================================================================ */}
-      {experience.length > 0 ? (
-        <section
-          id="experience"
-          className="section border-t border-line anchor"
-          aria-labelledby="experience-heading"
-        >
-          <div className="shell">
-            <div className="section-head section-head-split">
-              <h2 id="experience-heading" className="section-title">
-                Where I have worked
-              </h2>
-              <p className="section-lede">
-                Each responsibility links to the thing it produced, so you can
-                check the claim rather than take it.
-              </p>
-            </div>
-
-            <div className="xp">
-              {experience.map((job) => (
-                <article key={job.slug} className="xp-item">
-                  <div>
-                    <p className="xp-period">
-                      {job.current ? (
-                        <span className="xp-live" aria-label="Current role" />
-                      ) : null}
-                      {job.period}
-                    </p>
-                  </div>
-
-                  <div className="min-w-0">
-                    <h3 className="xp-role">
-                      {job.role}{" "}
-                      <span className="xp-company">— {job.company}</span>
-                    </h3>
-
-                    {job.highlights.length > 0 ? (
-                      <div className="xp-highlights">
-                        {job.highlights.slice(0, 3).map((highlight, i) => (
-                          <p key={i} className="xp-highlight">
-                            {highlight.text}
-                            {highlight.caseStudy ? (
-                              <>
-                                {" "}
-                                <Link
-                                  href={`/work/${highlight.caseStudy}`}
-                                  className="link"
-                                >
-                                  See how
-                                </Link>
-                              </>
-                            ) : null}
-                          </p>
-                        ))}
-                      </div>
-                    ) : null}
-                  </div>
-                </article>
-              ))}
-            </div>
-
-            <div className="mt-10 flex flex-wrap gap-4">
-              <Link href="/about" className="link-arrow">
-                Full background
-                <ArrowRight />
-              </Link>
-              {site.resumeUrl ? (
-                <a
-                  href={site.resumeUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="link-arrow"
-                >
-                  <Download />
-                  Resume (PDF)
-                </a>
-              ) : null}
-            </div>
-          </div>
-        </section>
-      ) : null}
-
-      {/* ================================================================ */}
-      {skills.length > 0 ? (
-        <section
-          id="stack"
-          className="section border-t border-line anchor"
-          aria-labelledby="skills-heading"
-        >
-          <div className="shell">
-            <div className="section-head section-head-split">
-              <h2 id="skills-heading" className="section-title">
-                What I build with
-              </h2>
-              <p className="section-lede">
-                Everything listed here is in something I have shipped, not
-                something I have read about.
-              </p>
-            </div>
-
-            <StackExplorer groups={skills} />
-          </div>
-        </section>
-      ) : null}
+      {/* The roles timeline lives once, on /about. The tech stack lives once,
+          on /work, where it reads as evidence rather than decoration. Home
+          links to both instead of repeating them. */}
 
       {/* ================================================================ */}
       {latestArticles.length > 0 ? (
